@@ -1,0 +1,784 @@
+{
+  "1": {
+    "tag": "SECTION",
+    "id": "comp-lt8qhfaf1",
+    "className": "Oqnisf comp-lt8qhfaf1 wixui-section",
+    "html": "<section id=\"comp-lt8qhfaf1\" tabindex=\"-1\" class=\"Oqnisf comp-lt8qhfaf1 wixui-section\" data-block-level-container=\"ClassicSection\"></section>",
+    "styles": {
+      "align-self": "start",
+      "bottom": "0px",
+      "grid-column-end": "2",
+      "grid-column-start": "1",
+      "grid-row-end": "4",
+      "grid-row-start": "3",
+      "height": "1218px",
+      "left": "0px",
+      "min-height": "auto",
+      "min-width": "980px",
+      "position": "relative",
+      "right": "0px",
+      "top": "0px"
+    },
+    "children": [
+      {
+        "tag": "DIV",
+        "id": "bgLayers_comp-lt8qhfaf1",
+        "className": "MW5IWV",
+        "html": "<div id=\"bgLayers_comp-lt8qhfaf1\" data-hook=\"bgLayers\" data-motion-part=\"BG_LAYER comp-lt8qhfaf1\" class=\"MW5IWV\"></div>",
+        "styles": {
+          "bottom": "0px",
+          "height": "1218px",
+          "left": "0px",
+          "position": "absolute",
+          "right": "0px",
+          "top": "0px"
+        },
+        "children": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "LWbAav Kv1aVt",
+            "html": "<div data-testid=\"colorUnderlay\" class=\"LWbAav Kv1aVt\"></div>",
+            "styles": {
+              "bottom": "0px",
+              "height": "1218px",
+              "left": "0px",
+              "position": "absolute",
+              "right": "0px",
+              "top": "0px"
+            }
+          },
+          {
+            "tag": "DIV",
+            "id": "bgMedia_comp-lt8qhfaf1",
+            "className": "VgO9Yg",
+            "html": "<div id=\"bgMedia_comp-lt8qhfaf1\" data-motion-part=\"BG_MEDIA comp-lt8qhfaf1\" class=\"VgO9Yg\"></div>",
+            "styles": {
+              "height": "1218px"
+            }
+          }
+        ]
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "",
+        "html": "<div data-mesh-id=\"comp-lt8qhfaf1inlineContent\" data-testid=\"inline-content\" class=\"\"></div>",
+        "styles": {
+          "bottom": "0px",
+          "height": "1218px",
+          "left": "0px",
+          "position": "relative",
+          "right": "0px",
+          "top": "0px"
+        },
+        "children": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "className": "",
+            "html": "<div data-mesh-id=\"comp-lt8qhfaf1inlineContent-gridContainer\" data-testid=\"mesh-container-content\"></div>",
+            "styles": {
+              "display": "grid",
+              "grid-template-columns": "1935px",
+              "grid-template-rows": "1218px",
+              "height": "1218px"
+            },
+            "children": [
+              {
+                "tag": "SECTION",
+                "id": "comp-irqduxas",
+                "className": "comp-irqduxas CohWsy wixui-column-strip",
+                "html": "<section id=\"comp-irqduxas\" class=\"comp-irqduxas CohWsy wixui-column-strip\"></section>",
+                "styles": {
+                  "align-self": "start",
+                  "bottom": "0px",
+                  "display": "flex",
+                  "grid-column-end": "2",
+                  "grid-column-start": "1",
+                  "grid-row-end": "2",
+                  "grid-row-start": "1",
+                  "height": "1218px",
+                  "left": "0px",
+                  "min-height": "auto",
+                  "min-width": "980px",
+                  "position": "relative",
+                  "right": "0px",
+                  "top": "0px"
+                },
+                "children": [
+                  {
+                    "tag": "DIV",
+                    "id": "bgLayers_comp-irqduxas",
+                    "className": "if7Vw2",
+                    "html": "<div id=\"bgLayers_comp-irqduxas\" data-hook=\"bgLayers\" data-motion-part=\"BG_LAYER comp-irqduxas\" class=\"if7Vw2\"></div>",
+                    "styles": {
+                      "bottom": "0px",
+                      "height": "1218px",
+                      "left": "0px",
+                      "position": "absolute",
+                      "right": "0px",
+                      "top": "0px"
+                    },
+                    "children": [
+                      {
+                        "tag": "DIV",
+                        "id": "",
+                        "className": "tcElKx i1tH8h",
+                        "html": "<div data-testid=\"colorUnderlay\" class=\"tcElKx i1tH8h\"></div>",
+                        "styles": {
+                          "bottom": "0px",
+                          "height": "1218px",
+                          "left": "0px",
+                          "position": "absolute",
+                          "right": "0px",
+                          "top": "0px"
+                        }
+                      },
+                      {
+                        "tag": "DIV",
+                        "id": "bgMedia_comp-irqduxas",
+                        "className": "wG8dni",
+                        "html": "<div id=\"bgMedia_comp-irqduxas\" data-motion-part=\"BG_MEDIA comp-irqduxas\" class=\"wG8dni\"></div>",
+                        "styles": {
+                          "height": "1218px"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "tag": "DIV",
+                    "id": "",
+                    "className": "V5AUxf",
+                    "html": "<div data-testid=\"columns\" class=\"V5AUxf\"></div>",
+                    "styles": {
+                      "bottom": "0px",
+                      "column-gap": "0px",
+                      "display": "flex",
+                      "height": "1218px",
+                      "left": "0px",
+                      "min-height": "auto",
+                      "min-width": "auto",
+                      "position": "relative",
+                      "right": "0px",
+                      "top": "0px"
+                    },
+                    "children": [
+                      {
+                        "tag": "DIV",
+                        "id": "comp-irqduxaw",
+                        "className": "comp-irqduxaw YzqVVZ wixui-column-strip__column",
+                        "html": "<div id=\"comp-irqduxaw\" class=\"comp-irqduxaw YzqVVZ wixui-column-strip__column\"></div>",
+                        "styles": {
+                          "bottom": "0px",
+                          "flex-basis": "0%",
+                          "flex-grow": "980",
+                          "height": "1218px",
+                          "left": "0px",
+                          "min-height": "auto",
+                          "position": "relative",
+                          "right": "0px",
+                          "top": "0px"
+                        },
+                        "children": [
+                          {
+                            "tag": "DIV",
+                            "id": "bgLayers_comp-irqduxaw",
+                            "className": "MW5IWV",
+                            "html": "<div id=\"bgLayers_comp-irqduxaw\" data-hook=\"bgLayers\" data-motion-part=\"BG_LAYER comp-irqduxaw\" class=\"MW5IWV\"></div>",
+                            "styles": {
+                              "bottom": "0px",
+                              "height": "1218px",
+                              "left": "0px",
+                              "position": "absolute",
+                              "right": "0px",
+                              "top": "0px"
+                            },
+                            "children": [
+                              {
+                                "tag": "DIV",
+                                "id": "",
+                                "className": "LWbAav Kv1aVt",
+                                "html": "<div data-testid=\"colorUnderlay\" class=\"LWbAav Kv1aVt\"></div>",
+                                "styles": {
+                                  "background-color": "rgb(242, 247, 255)",
+                                  "bottom": "0px",
+                                  "height": "1218px",
+                                  "left": "0px",
+                                  "position": "absolute",
+                                  "right": "0px",
+                                  "top": "0px"
+                                }
+                              },
+                              {
+                                "tag": "DIV",
+                                "id": "bgMedia_comp-irqduxaw",
+                                "className": "VgO9Yg",
+                                "html": "<div id=\"bgMedia_comp-irqduxaw\" data-motion-part=\"BG_MEDIA comp-irqduxaw\" class=\"VgO9Yg\"></div>",
+                                "styles": {
+                                  "height": "1218px"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "tag": "DIV",
+                            "id": "",
+                            "className": "",
+                            "html": "<div data-mesh-id=\"comp-irqduxawinlineContent\" data-testid=\"inline-content\" class=\"\"></div>",
+                            "styles": {
+                              "bottom": "0px",
+                              "height": "1218px",
+                              "left": "0px",
+                              "position": "relative",
+                              "right": "0px",
+                              "top": "0px"
+                            },
+                            "children": [
+                              {
+                                "tag": "DIV",
+                                "id": "",
+                                "className": "",
+                                "html": "<div data-mesh-id=\"comp-irqduxawinlineContent-gridContainer\" data-testid=\"mesh-container-content\"></div>",
+                                "styles": {
+                                  "display": "grid",
+                                  "grid-template-columns": "1935px",
+                                  "grid-template-rows": "199px 50px 30px 61px 45px 0px 198px 0px 0px 106px 32px 44px 62px 234px 157px",
+                                  "height": "1218px",
+                                  "min-height": "1218px"
+                                },
+                                "children": [
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irtb3bz7",
+                                    "className": "HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irtb3bz7 wixui-rich-text",
+                                    "html": "<div id=\"comp-irtb3bz7\" class=\"HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irtb3bz7 wixui-rich-text\" data-testid=\"richTextElement\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "2",
+                                      "grid-row-start": "1",
+                                      "height": "47px",
+                                      "left": "115px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-115px",
+                                      "top": "0px",
+                                      "width": "746px"
+                                    }
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irsxtu2g",
+                                    "className": "comp-irsxtu2g wixui-vector-image",
+                                    "html": "<div id=\"comp-irsxtu2g\" class=\"comp-irsxtu2g wixui-vector-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "3",
+                                      "grid-row-start": "2",
+                                      "height": "24px",
+                                      "left": "35px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-35px",
+                                      "top": "0px",
+                                      "width": "24px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "AKxYR5 VZYmYf comp-irsxtu2g",
+                                        "html": "<div data-testid=\"svgRoot-comp-irsxtu2g\" class=\"AKxYR5 VZYmYf comp-irsxtu2g\"></div>",
+                                        "styles": {
+                                          "bottom": "0px",
+                                          "height": "24px",
+                                          "left": "0px",
+                                          "position": "absolute",
+                                          "right": "0px",
+                                          "top": "0px",
+                                          "width": "24px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irsxtr31",
+                                    "className": "comp-irsxtr31 wixui-vector-image",
+                                    "html": "<div id=\"comp-irsxtr31\" class=\"comp-irsxtr31 wixui-vector-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "4",
+                                      "grid-row-start": "3",
+                                      "height": "24px",
+                                      "left": "20px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-20px",
+                                      "top": "0px",
+                                      "width": "24px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "AKxYR5 VZYmYf comp-irsxtr31",
+                                        "html": "<div data-testid=\"svgRoot-comp-irsxtr31\" class=\"AKxYR5 VZYmYf comp-irsxtr31\"></div>",
+                                        "styles": {
+                                          "bottom": "0px",
+                                          "height": "24px",
+                                          "left": "0px",
+                                          "position": "absolute",
+                                          "right": "0px",
+                                          "top": "0px",
+                                          "width": "24px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irsxsok1",
+                                    "className": "comp-irsxsok1 wixui-vector-image",
+                                    "html": "<div id=\"comp-irsxsok1\" class=\"comp-irsxsok1 wixui-vector-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "5",
+                                      "grid-row-start": "4",
+                                      "height": "24px",
+                                      "left": "42px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-42px",
+                                      "top": "0px",
+                                      "width": "24px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "AKxYR5 VZYmYf comp-irsxsok1",
+                                        "html": "<div data-testid=\"svgRoot-comp-irsxsok1\" class=\"AKxYR5 VZYmYf comp-irsxsok1\"></div>",
+                                        "styles": {
+                                          "bottom": "0px",
+                                          "height": "24px",
+                                          "left": "0px",
+                                          "position": "absolute",
+                                          "right": "0px",
+                                          "top": "0px",
+                                          "width": "24px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-iruwiqnd",
+                                    "className": "MazNVa comp-iruwiqnd wixui-image",
+                                    "html": "<div id=\"comp-iruwiqnd\" class=\"MazNVa comp-iruwiqnd wixui-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "7",
+                                      "grid-row-start": "3",
+                                      "height": "188px",
+                                      "left": "115px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-115px",
+                                      "top": "0px",
+                                      "width": "239px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "j7pOnl",
+                                        "html": "<div data-testid=\"linkElement\" class=\"j7pOnl\"></div>",
+                                        "styles": {
+                                          "height": "188px",
+                                          "width": "239px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-iruwjbi6",
+                                    "className": "MazNVa comp-iruwjbi6 wixui-image",
+                                    "html": "<div id=\"comp-iruwjbi6\" class=\"MazNVa comp-iruwjbi6 wixui-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "8",
+                                      "grid-row-start": "7",
+                                      "height": "188px",
+                                      "left": "267px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-267px",
+                                      "top": "0px",
+                                      "width": "239px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "j7pOnl",
+                                        "html": "<div data-testid=\"linkElement\" class=\"j7pOnl\"></div>",
+                                        "styles": {
+                                          "height": "188px",
+                                          "width": "239px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-isejjlss",
+                                    "className": "comp-isejjlss wixui-vector-image",
+                                    "html": "<div id=\"comp-isejjlss\" class=\"comp-isejjlss wixui-vector-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "6",
+                                      "grid-row-start": "5",
+                                      "height": "26px",
+                                      "left": "372px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-372px",
+                                      "top": "0px",
+                                      "width": "29px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "AKxYR5 VZYmYf comp-isejjlss",
+                                        "html": "<div data-testid=\"svgRoot-comp-isejjlss\" class=\"AKxYR5 VZYmYf comp-isejjlss\"></div>",
+                                        "styles": {
+                                          "bottom": "0px",
+                                          "height": "26px",
+                                          "left": "0px",
+                                          "position": "absolute",
+                                          "right": "0px",
+                                          "top": "0px",
+                                          "width": "29px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-isehzfd9",
+                                    "className": "comp-isehzfd9 wixui-vector-image",
+                                    "html": "<div id=\"comp-isehzfd9\" class=\"comp-isehzfd9 wixui-vector-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "8",
+                                      "grid-row-start": "7",
+                                      "height": "54px",
+                                      "left": "197px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-197px",
+                                      "top": "0px",
+                                      "width": "50px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "AKxYR5 VZYmYf comp-isehzfd9",
+                                        "html": "<div data-testid=\"svgRoot-comp-isehzfd9\" class=\"AKxYR5 VZYmYf comp-isehzfd9\"></div>",
+                                        "styles": {
+                                          "bottom": "0px",
+                                          "height": "54px",
+                                          "left": "0px",
+                                          "position": "absolute",
+                                          "right": "0px",
+                                          "top": "0px",
+                                          "width": "50px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irqduxb1",
+                                    "className": "HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxb1 wixui-rich-text",
+                                    "html": "<div id=\"comp-irqduxb1\" class=\"HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxb1 wixui-rich-text\" data-testid=\"richTextElement\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "5",
+                                      "grid-row-start": "4",
+                                      "height": "47px",
+                                      "left": "558px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-558px",
+                                      "top": "0px",
+                                      "width": "304px"
+                                    }
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irqduxb4",
+                                    "className": "HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxb4 wixui-rich-text",
+                                    "html": "<div id=\"comp-irqduxb4\" class=\"HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxb4 wixui-rich-text\" data-testid=\"richTextElement\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "10",
+                                      "grid-row-start": "5",
+                                      "height": "224px",
+                                      "left": "558px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-558px",
+                                      "top": "0px",
+                                      "width": "290px"
+                                    }
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-iruxih60",
+                                    "className": "MazNVa comp-iruxih60 wixui-image",
+                                    "html": "<div id=\"comp-iruxih60\" class=\"MazNVa comp-iruxih60 wixui-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "12",
+                                      "grid-row-start": "11",
+                                      "height": "32px",
+                                      "left": "526px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-526px",
+                                      "top": "0px",
+                                      "width": "35px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "j7pOnl",
+                                        "html": "<div data-testid=\"linkElement\" class=\"j7pOnl\"></div>",
+                                        "styles": {
+                                          "height": "32px",
+                                          "width": "35px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irqduxbr",
+                                    "className": "HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxbr wixui-rich-text",
+                                    "html": "<div id=\"comp-irqduxbr\" class=\"HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxbr wixui-rich-text\" data-testid=\"richTextElement\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "14",
+                                      "grid-row-start": "13",
+                                      "height": "47px",
+                                      "left": "150px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-150px",
+                                      "top": "0px",
+                                      "width": "287px"
+                                    }
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-irsw090n",
+                                    "className": "HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irsw090n wixui-rich-text",
+                                    "html": "<div id=\"comp-irsw090n\" class=\"HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irsw090n wixui-rich-text\" data-testid=\"richTextElement\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "15",
+                                      "grid-row-start": "14",
+                                      "height": "224px",
+                                      "left": "150px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-150px",
+                                      "top": "0px",
+                                      "width": "287px"
+                                    }
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-isejkuti",
+                                    "className": "comp-isejkuti wixui-vector-image",
+                                    "html": "<div id=\"comp-isejkuti\" class=\"comp-isejkuti wixui-vector-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "13",
+                                      "grid-row-start": "12",
+                                      "height": "26px",
+                                      "left": "500px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-500px",
+                                      "top": "0px",
+                                      "width": "29px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "AKxYR5 VZYmYf comp-isejkuti",
+                                        "html": "<div data-testid=\"svgRoot-comp-isejkuti\" class=\"AKxYR5 VZYmYf comp-isejkuti\"></div>",
+                                        "styles": {
+                                          "bottom": "0px",
+                                          "height": "26px",
+                                          "left": "0px",
+                                          "position": "absolute",
+                                          "right": "0px",
+                                          "top": "0px",
+                                          "width": "29px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "comp-iruxgy2h",
+                                    "className": "MazNVa comp-iruxgy2h wixui-image",
+                                    "html": "<div id=\"comp-iruxgy2h\" class=\"MazNVa comp-iruxgy2h wixui-image\"></div>",
+                                    "styles": {
+                                      "align-self": "start",
+                                      "bottom": "0px",
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "16",
+                                      "grid-row-start": "12",
+                                      "height": "338px",
+                                      "left": "538px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "position": "relative",
+                                      "right": "-538px",
+                                      "top": "0px",
+                                      "width": "318px"
+                                    },
+                                    "children": [
+                                      {
+                                        "tag": "DIV",
+                                        "id": "",
+                                        "className": "j7pOnl",
+                                        "html": "<div data-testid=\"linkElement\" class=\"j7pOnl\"></div>",
+                                        "styles": {
+                                          "height": "338px",
+                                          "width": "318px"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "tag": "DIV",
+                                    "id": "",
+                                    "className": "",
+                                    "html": "<div data-mesh-id=\"comp-irqduxawinlineContent-wedge-11\"></div>",
+                                    "styles": {
+                                      "grid-column-end": "2",
+                                      "grid-column-start": "1",
+                                      "grid-row-end": "11",
+                                      "grid-row-start": "1",
+                                      "height": "689px",
+                                      "min-height": "auto",
+                                      "min-width": "auto",
+                                      "width": "0px"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "tag": "DIV",
+                "id": "comp-irte6ovt",
+                "className": "Vd6aQZ ignore-focus comp-irte6ovt",
+                "html": "<div id=\"comp-irte6ovt\" class=\"Vd6aQZ ignore-focus comp-irte6ovt\" role=\"region\" tabindex=\"-1\" aria-label=\"How it works\"></div>",
+                "styles": {
+                  "align-self": "start",
+                  "bottom": "0px",
+                  "grid-column-end": "2",
+                  "grid-column-start": "1",
+                  "grid-row-end": "2",
+                  "grid-row-start": "1",
+                  "height": "90px",
+                  "left": "0px",
+                  "min-height": "auto",
+                  "min-width": "auto",
+                  "position": "relative",
+                  "right": "0px",
+                  "top": "0px"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
