@@ -1,1432 +1,3 @@
-// const express = require('express');
-// const fs = require('fs/promises');
-// const path = require('path');
-// const { OpenAI } = require('openai');
-// const cheerio = require('cheerio');
-// require('dotenv').config(); // Load environment variables from .env file
-
-// const app = express();
-// const PORT = process.env.PORT || 3000;
-
-// // Initialize OpenAI with API key from environment
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY
-// });
-
-// app.use(express.json({ limit: '50mb' }));
-// app.use(express.static('public'));
-
-// // === Widget Tags Configuration ===
-// const widgetTags = new Set([
-//   'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'SVG', 'IMG', 'IMAGE', 'VIDEO',
-//   'SPAN', 'BUTTON', 'A', 'TEXT', 'WOW-IMAGE', 'WOW-VIDEO', 'WOW-SVG', 'WOW-ICON', 'WOW-CANVAS'
-// ]);
-
-// // === Layout Styles Configuration ===
-// const allowedLayoutStyles = new Set([
-//   'display', 'flexDirection', 'flexWrap', 'justifyContent', 'alignItems', 'alignContent',
-//   'alignSelf', 'order', 'flexGrow', 'flexShrink', 'flexBasis', 'gap', 'rowGap', 'columnGap',
-//   'gridTemplateColumns', 'gridTemplateRows', 'gridColumn', 'gridRow', 'gridColumnStart',
-//   'gridColumnEnd', 'gridRowStart', 'gridRowEnd', 'gridArea', 'placeItems', 'placeContent',
-//   'placeSelf', 'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
-//   'position', 'top', 'right', 'bottom', 'left', 'zIndex', 'backgroundColor'
-// ]);
-
-// // === Widget Font/Text Styles ===
-// const fontAndTextStyles = new Set([
-//   'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing', 'lineHeight',
-//   'textAlign', 'textDecoration', 'textDecorationColor', 'textShadow', 'textTransform',
-//   'textOverflow', 'whiteSpace', 'wordBreak', 'wordWrap', 'overflowWrap',
-//   'textSizeAdjust', 'caretColor', 'color', 'outlineColor', 'textEmphasisColor',
-//   '-webkitTextFillColor', '-webkitTextStrokeColor'
-// ]);
-
-// // === Widget Image/SVG/Video Styles ===
-// const svgImageStyles = new Set([
-//   'fill', 'stroke', 'strokeWidth', 'strokeOpacity', 'vectorEffect', 'transformOrigin',
-//   'perspectiveOrigin', 'display', 'position', 'top', 'right', 'bottom', 'left',
-//   'width', 'height', 'blockSize', 'inlineSize',
-//   'insetBlockStart', 'insetBlockEnd', 'insetInlineStart', 'insetInlineEnd',
-//   '-webkitTapHighlightColor'
-// ]);
-
-// // === Common Background & Color Styles ===
-// const colorBackgroundStyles = new Set([
-//   'background', 'backgroundColor', 'backgroundImage', 'color'
-// ]);
-
-// // === Helper Functions ===
-// function toCamelCase(str) {
-//   return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
-// }
-
-// function filterLayoutStyles(styles) {
-//   const result = {};
-//   for (const key in styles) {
-//     const camelKey = toCamelCase(key);
-//     if (allowedLayoutStyles.has(camelKey) || camelKey.startsWith('background')) {
-//       result[key] = styles[key];
-//     }
-//   }
-//   return result;
-// }
-
-// function filterWidgetStyles(styles) {
-//   const result = {};
-//   for (const key in styles) {
-//     const camelKey = toCamelCase(key);
-//     if (
-//       fontAndTextStyles.has(camelKey) ||
-//       svgImageStyles.has(camelKey) ||
-//       colorBackgroundStyles.has(camelKey)
-//     ) {
-//       result[key] = styles[key];
-//     }
-//   }
-//   return result;
-// }
-
-// function splitNode(node) {
-//   if (!node || typeof node !== 'object') return { layout: null, widget: null };
-
-//   const isWidget = widgetTags.has((node.tag || '').toUpperCase());
-
-//   const layoutStyles = node.styles ? filterLayoutStyles(node.styles) : {};
-//   const widgetStyles = node.styles ? filterWidgetStyles(node.styles) : {};
-
-//   const children = Array.isArray(node.children) ? node.children.map(splitNode) : [];
-
-//   const layoutChildren = children.map(c => c.layout).filter(Boolean);
-//   const widgetChildren = children.map(c => c.widget).filter(Boolean);
-
-//   const baseProps = {
-//     tag: node.tag,
-//     id: node.id || '',
-//     className: node.className || '',
-//     html: node.html
-//   };
-
-//   const layoutNode = !isWidget && (Object.keys(layoutStyles).length > 0 || layoutChildren.length > 0)
-//     ? {
-//         ...baseProps,
-//         ...(Object.keys(layoutStyles).length > 0 ? { styles: layoutStyles } : {}),
-//         ...(layoutChildren.length > 0 ? { children: layoutChildren } : {})
-//       }
-//     : null;
-
-//   const widgetNode = isWidget
-//     ? {
-//         ...baseProps,
-//         ...(Object.keys(widgetStyles).length > 0 ? { styles: widgetStyles } : {}),
-//         ...(widgetChildren.length > 0 ? { children: widgetChildren } : {})
-//       }
-//     : widgetChildren.length > 0 ? widgetChildren.length === 1 ? widgetChildren[0] : widgetChildren : null;
-
-//   return { layout: layoutNode, widget: widgetNode };
-// }
-
-// function splitJsonTree(parsed) {
-//   const layoutTree = {};
-//   const widgetTree = {};
-
-//   for (const key in parsed) {
-//     const { layout, widget } = splitNode(parsed[key]);
-//     if (layout) layoutTree[key] = layout;
-//     if (widget) widgetTree[key] = widget;
-//   }
-
-//   return { layoutTree, widgetTree };
-// }
-
-// // === OpenAI Integration Functions ===
-// async function getMatchedStylesFromAI(widgets, computedStyles) {
-//   const prompt = `
-// You are a JSON-only engine. Do not return any explanation, markdown, or comments.
-
-// Task:
-// Match computedStyles to each widget using the best possible selector (id > className > tagName > selector).
-
-// Instructions:
-// - Return a JSON **array** of objects.
-// - Each object must contain "id" and full "computedStyles" — do not leave any computedStyles empty, even if the tag is repeated.
-// - Do NOT include markdown syntax like \`\`\`.
-
-// Widgets:
-// ${JSON.stringify(widgets, null, 2)}
-
-// ComputedStyles:
-// ${JSON.stringify(computedStyles, null, 2)}
-
-// Response format:
-// [
-//   {
-//     "id": "template-1",
-//     "computedStyles": {
-//       "color": "red",
-//       ...
-//     }
-//   },
-//   ...
-// ]
-// `;
-
-//   const completion = await openai.chat.completions.create({
-//     model: 'gpt-4o-mini',
-//     messages: [{ role: 'user', content: prompt }],
-//     temperature: 0
-//   });
-
-//   let raw = completion.choices[0].message.content.trim();
-
-//   const arrayStart = raw.indexOf('[');
-//   const arrayEnd = raw.lastIndexOf(']');
-
-//   if (arrayStart === -1 || arrayEnd === -1) {
-//     console.error('OpenAI did not return a valid JSON array:\n', raw);
-//     throw new Error('Could not parse JSON from OpenAI response');
-//   }
-
-//   let jsonStr = raw.slice(arrayStart, arrayEnd + 1).replace(/,\s*([\]}])/g, '$1');
-
-//   try {
-//     const parsed = JSON.parse(jsonStr);
-//     const arr = Array.isArray(parsed) ? parsed : [parsed];
-//     const map = {};
-//     for (const w of arr) {
-//       if (w && w.id) map[w.id] = w.computedStyles || {};
-//     }
-//     return map;
-//   } catch (err) {
-//     console.error('JSON parse error after cleanup:', err, '\nRaw JSON:', jsonStr);
-//     throw new Error('Could not parse JSON from OpenAI response');
-//   }
-// }
-
-// async function inlineLayoutStyles(htmlContent, layoutStyles) {
-//   const prompt = `
-// CRITICAL REQUIREMENTS:
-// 1. PRESERVE ALL TEMPLATE PLACEHOLDERS EXACTLY AS IS - they appear as {{template-n}}
-// 2. Only convert these CSS properties to inline styles:
-//    - Grid: display:grid, grid-template-*, gap, grid-column, grid-row, etc.
-//    - Flex: display:flex, flex-direction, justify-content, align-items, etc.
-//    - Position: position, top, right, bottom, left, z-index
-//    - Size: width, height, min-width, max-width, etc.
-// 3. Keep all other HTML structure and attributes unchanged
-// 4. Only modify elements that have matching styles in the layoutStyles
-
-// HTML:
-// ${htmlContent}
-
-// LAYOUT STYLES (JSON):
-// ${JSON.stringify(layoutStyles, null, 2)}
-
-// Return ONLY the optimized HTML with inline styles - NO explanations.
-// The {{template-n}} placeholders must remain unchanged.
-// `;
-
-//   const completion = await openai.chat.completions.create({
-//     model: 'gpt-3.5-turbo',
-//     messages: [
-//       {
-//         role: 'system',
-//         content: 'You are an expert HTML/CSS optimizer. Convert styles to inline while EXACTLY preserving template placeholders.'
-//       },
-//       {
-//         role: 'user',
-//         content: prompt
-//       }
-//     ],
-//     temperature: 0.1,
-//     max_tokens: 4000
-//   });
-
-//   let optimizedHtml = completion.choices[0]?.message?.content || '';
-  
-//   // Clean up the response
-//   optimizedHtml = optimizedHtml
-//     .replace(/```html/g, '')
-//     .replace(/```/g, '')
-//     .trim();
-
-//   return optimizedHtml;
-// }
-
-// async function generateBareLayout(htmlContent) {
-//   const prompt = `
-// CRITICAL REQUIREMENTS:
-// 1. MUST wrap final output in {{template-n}} tags
-// 2. MUST preserve ALL {{template-xx}} placeholders
-// 3. MUST achieve 70-80% line reduction
-// 4. MUST maintain pixel-perfect visual match
-// 5. MUST use line-styles only (no classes, no <style> tags)
-// 6. MUST use maximum CSS shorthand
-// 7. MUST remove all unnecessary elements and wrappers
-// 8. MUST use modern CSS techniques (Flexbox/Grid)
-
-// OPTIMIZATION TECHNIQUES TO USE:
-// - Remove ALL unnecessary wrapper divs
-// - Use CSS Grid/Flexbox efficiently
-// - Maximum CSS shorthand (inset, margin/padding shorthand)
-// - Combine redundant styles
-// - Eliminate empty/irrelevant elements
-
-// Original HTML (${htmlContent.split('\n').length} lines):
-// ${htmlContent}
-
-// Provide optimized HTML wrapped in {{template-n}} tags (target ${Math.round(htmlContent.split('\n').length * 0.2)} lines):
-// `;
-
-//   const completion = await openai.chat.completions.create({
-//     model: "gpt-3.5-turbo",
-//     messages: [
-//       {
-//         role: "system",
-//         content: `You are an HTML optimization expert. You MUST:
-// 1. Preserve ALL {{template-xx}} placeholders
-// 2. Wrap output in {{template-n}} tags
-// 3. Achieve 70-80% line reduction
-// 4. Maintain identical visual output
-// 5. Use maximum CSS shorthand
-// 6. Remove redundant elements`
-//       },
-//       {
-//         role: "user",
-//         content: prompt
-//       }
-//     ],
-//     temperature: 0.1,
-//     max_tokens: 4000
-//   });
-
-//   let optimizedCode = completion.choices[0]?.message?.content || '';
-  
-//   // Extract content from template tags
-//   const templateMatch = optimizedCode.match(/\{\{template-n\}\}([\s\S]*?)\{\{\/template-n\}\}/);
-//   if (templateMatch) {
-//     optimizedCode = templateMatch[1].trim();
-//   }
-
-//   return optimizedCode;
-// }
-
-// // === Migration Process Functions ===
-// let templateCounter = 1;
-
-// async function processHtmlSection(htmlString, computedStyles = null, _sectionId) {
-//   const $ = cheerio.load(htmlString);
-//   const templates = [];
-
-//   const WIDGET_TAGS = [
-//     'h1','h2','h3','h4','h5','h6','p','span','button','a','img','svg','video','audio',
-//     'input','textarea','select','label','strong','b','em','i','ul','ol','li','table',
-//     'tr','td','th','form','iframe'
-//   ];
-
-//   $(WIDGET_TAGS.join(',')).each(function() {
-//     const templateId = `template-${templateCounter++}`;
-//     const element = $(this);
-//     const tagName = this.tagName.toLowerCase();
-//     const className = element.attr('class') || '';
-//     const idAttr = element.attr('id') || '';
-
-//     // Remove style attribute
-//     element.removeAttr('style');
-
-//     const widgetData = {
-//       id: templateId,
-//       type: getWidgetType(tagName),
-//       tagName,
-//       className,
-//       idAttr,
-//       innerHTML: element.html(),
-//       outerHTML: $.html(element),
-//       textContent: element.text() || '',
-//       isContentWidget: true
-//     };
-
-//     templates.push(widgetData);
-//     element.replaceWith(`{{${templateId}}}`);
-//   });
-
-//   let computedMap = {};
-//   if (computedStyles) {
-//     computedMap = await getMatchedStylesFromAI(templates, computedStyles);
-//   }
-
-//   for (let w of templates) {
-//     w.computedStyles = computedMap[w.id] || {};
-//   }
-
-//   return {
-//     processedHtml: $.html(),
-//     templates
-//   };
-// }
-
-// function getWidgetType(tag) {
-//   if (['h1','h2','h3','h4','h5','h6'].includes(tag)) return 'heading';
-//   if (tag === 'p') return 'paragraph';
-//   if (tag === 'span') return 'text-span';
-//   if (tag === 'button') return 'button';
-//   if (tag === 'a') return 'link';
-//   if (tag === 'img') return 'image';
-//   if (tag === 'svg') return 'svg-icon';
-//   if (tag === 'video') return 'video';
-//   if (['input','textarea','select'].includes(tag)) return 'form-input';
-//   return 'content-widget';
-// }
-
-// // === API Routes ===
-
-// // Main migration endpoint
-// app.post('/api/migrate', async (req, res) => {
-//   try {
-//     console.log('🚀 Starting migration process...');
-    
-//     // Check if OpenAI API key exists
-//     if (!process.env.OPENAI_API_KEY) {
-//       return res.status(500).json({ 
-//         error: 'OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.' 
-//       });
-//     }
-
-//     // Step 1: Load input files
-//     const computedStylesPath = path.join(__dirname, 'computed-styles.json');
-//     const fullHtmlPath = path.join(__dirname, 'full.html');
-
-//     const computedStylesContent = await fs.readFile(computedStylesPath, 'utf8');
-//     const fullHtmlContent = await fs.readFile(fullHtmlPath, 'utf8');
-
-//     const computedStyles = JSON.parse(computedStylesContent);
-//     const sectionKeys = Object.keys(computedStyles);
-
-//     console.log(`📊 Found ${sectionKeys.length} sections to process`);
-
-//     const results = [];
-
-//     // Recursive processing of sections
-//     for (let i = 0; i < sectionKeys.length; i++) {
-//       const sectionKey = sectionKeys[i];
-//       console.log(`\n--- Processing Section ${i + 1}/${sectionKeys.length}: ${sectionKey} ---`);
-
-//       try {
-//         const sectionResult = await processSingleSection(
-//           sectionKey, 
-//           computedStyles[sectionKey], 
-//           fullHtmlContent, 
-//           i + 1
-//         );
-//         results.push(sectionResult);
-//         console.log(`✅ Section ${sectionKey} completed successfully!`);
-//       } catch (error) {
-//         console.error(`❌ Error processing section ${sectionKey}:`, error.message);
-//         results.push({
-//           section: sectionKey,
-//           error: error.message,
-//           success: false
-//         });
-//       }
-//     }
-
-//     res.json({
-//       success: true,
-//       totalSections: sectionKeys.length,
-//       processedSections: results.length,
-//       results
-//     });
-
-//   } catch (error) {
-//     console.error('Migration failed:', error);
-//     res.status(500).json({
-//       error: 'Migration failed',
-//       message: error.message
-//     });
-//   }
-// });
-
-// // Process a single section through all steps
-// async function processSingleSection(sectionKey, sectionStyles, fullHtml, sectionNumber) {
-//   console.log(`🔄 Processing section: ${sectionKey}`);
-
-//   // Step 2: Extract widgets and layout
-//   console.log('📋 Step 2: Extracting widgets and layout...');
-//   const { layoutTree, widgetTree } = splitJsonTree({ [sectionKey]: sectionStyles });
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `widgets_${sectionKey}.json`),
-//     JSON.stringify(widgetTree, null, 2)
-//   );
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `layout_${sectionKey}.json`),
-//     JSON.stringify(layoutTree, null, 2)
-//   );
-
-//   // Step 3: Generate templates
-//   console.log('🏗️ Step 3: Generating templates...');
-//   const templateResult = await processHtmlSection(fullHtml, sectionStyles, sectionKey);
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `template_${sectionKey}.json`),
-//     JSON.stringify(templateResult.templates, null, 2)
-//   );
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `templated-output_${sectionKey}.html`),
-//     templateResult.processedHtml
-//   );
-
-//   // Step 4: Inline layout styles
-//   console.log('🎨 Step 4: Inlining layout styles...');
-//   const inlineHtml = await inlineLayoutStyles(templateResult.processedHtml, layoutTree);
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `inline-layout-output_${sectionKey}.html`),
-//     inlineHtml
-//   );
-
-//   // Step 5: Generate bare layout
-//   console.log('🔧 Step 5: Generating bare layout...');
-//   const bareHtml = await generateBareLayout(inlineHtml);
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `bare-layout-output_${sectionKey}.html`),
-//     bareHtml
-//   );
-
-//   // Step 6: Save final output
-//   console.log('💾 Step 6: Saving final output...');
-//   const finalOutput = {
-//     section: sectionKey,
-//     sectionNumber,
-//     processed: true,
-//     timestamp: new Date().toISOString(),
-//     files: {
-//       widgets: `widgets_${sectionKey}.json`,
-//       layout: `layout_${sectionKey}.json`,
-//       template: `template_${sectionKey}.json`,
-//       templatedHtml: `templated-output_${sectionKey}.html`,
-//       inlineHtml: `inline-layout-output_${sectionKey}.html`,
-//       bareHtml: `bare-layout-output_${sectionKey}.html`
-//     }
-//   };
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `final_${sectionKey}.json`),
-//     JSON.stringify(finalOutput, null, 2)
-//   );
-
-//   return finalOutput;
-// }
-
-// // Status endpoint
-// app.get('/api/status', (req, res) => {
-//   res.json({
-//     status: 'ready',
-//     openaiConfigured: !!process.env.OPENAI_API_KEY,
-//     timestamp: new Date().toISOString()
-//   });
-// });
-
-// // Serve the HTML interface
-// app.get('/', (req, res) => {
-//   res.send(`
-// <!DOCTYPE html>
-// <html lang="en">
-// <head>
-//     <meta charset="UTF-8">
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//     <title>HTML Migration System</title>
-//     <style>
-//         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-//         .button { background: #007bff; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer; }
-//         .button:hover { background: #0056b3; }
-//         .button:disabled { background: #ccc; cursor: not-allowed; }
-//         .status { margin: 20px 0; padding: 15px; border-radius: 5px; }
-//         .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-//         .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-//         .loading { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
-//         pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
-//     </style>
-// </head>
-// <body>
-//     <h1>🚀 HTML Migration System</h1>
-//     <p>Automated multi-step processing with recursive section handling</p>
-    
-//     <button id="migrateBtn" class="button" onclick="startMigration()">START MIGRATION</button>
-    
-//     <div id="status"></div>
-//     <div id="results"></div>
-
-//     <script>
-//         async function startMigration() {
-//             const btn = document.getElementById('migrateBtn');
-//             const status = document.getElementById('status');
-//             const results = document.getElementById('results');
-            
-//             btn.disabled = true;
-//             btn.textContent = 'PROCESSING...';
-            
-//             status.innerHTML = '<div class="status loading">🔄 Migration in progress...</div>';
-//             results.innerHTML = '';
-            
-//             try {
-//                 const response = await fetch('/api/migrate', {
-//                     method: 'POST',
-//                     headers: { 'Content-Type': 'application/json' }
-//                 });
-                
-//                 const data = await response.json();
-                
-//                 if (data.success) {
-//                     status.innerHTML = '<div class="status success">✅ Migration completed successfully!</div>';
-//                     results.innerHTML = '<h3>Results:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
-//                 } else {
-//                     status.innerHTML = '<div class="status error">❌ Migration failed: ' + data.message + '</div>';
-//                 }
-//             } catch (error) {
-//                 status.innerHTML = '<div class="status error">❌ Error: ' + error.message + '</div>';
-//             } finally {
-//                 btn.disabled = false;
-//                 btn.textContent = 'START MIGRATION';
-//             }
-//         }
-        
-//         // Check status on load
-//         fetch('/api/status').then(r => r.json()).then(data => {
-//             if (!data.openaiConfigured) {
-//                 document.getElementById('status').innerHTML = 
-//                     '<div class="status error">⚠️ OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.</div>';
-//             }
-//         });
-//     </script>
-// </body>
-// </html>
-//   `);
-// });
-
-// app.listen(PORT, () => {
-//   console.log(`🚀 Migration server running on http://localhost:${PORT}`);
-//   console.log(`📋 OpenAI API Key configured: ${!!process.env.OPENAI_API_KEY}`);
-//   console.log(`📁 Working directory: ${__dirname}`);
-// });
-
-// module.exports = app;
-// const express = require('express');
-// const fs = require('fs/promises');
-// const path = require('path');
-// const { OpenAI } = require('openai');
-// const cheerio = require('cheerio');
-// require('dotenv').config();
-
-// const app = express();
-// const PORT = process.env.PORT || 3000;
-
-// // Initialize OpenAI with API key from environment
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY
-// });
-
-// app.use(express.json({ limit: '50mb' }));
-// app.use(express.static('public'));
-
-// // === Widget Tags Configuration ===
-// const widgetTags = new Set([
-//   'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'SVG', 'IMG', 'IMAGE', 'VIDEO',
-//   'SPAN', 'BUTTON', 'A', 'TEXT', 'WOW-IMAGE', 'WOW-VIDEO', 'WOW-SVG', 'WOW-ICON', 'WOW-CANVAS'
-// ]);
-
-// // === Layout Styles Configuration ===
-// const allowedLayoutStyles = new Set([
-//   'display', 'flexDirection', 'flexWrap', 'justifyContent', 'alignItems', 'alignContent',
-//   'alignSelf', 'order', 'flexGrow', 'flexShrink', 'flexBasis', 'gap', 'rowGap', 'columnGap',
-//   'gridTemplateColumns', 'gridTemplateRows', 'gridColumn', 'gridRow', 'gridColumnStart',
-//   'gridColumnEnd', 'gridRowStart', 'gridRowEnd', 'gridArea', 'placeItems', 'placeContent',
-//   'placeSelf', 'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
-//   'position', 'top', 'right', 'bottom', 'left', 'zIndex', 'backgroundColor'
-// ]);
-
-// // === Widget Font/Text Styles ===
-// const fontAndTextStyles = new Set([
-//   'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing', 'lineHeight',
-//   'textAlign', 'textDecoration', 'textDecorationColor', 'textShadow', 'textTransform',
-//   'textOverflow', 'whiteSpace', 'wordBreak', 'wordWrap', 'overflowWrap',
-//   'textSizeAdjust', 'caretColor', 'color', 'outlineColor', 'textEmphasisColor',
-//   '-webkitTextFillColor', '-webkitTextStrokeColor'
-// ]);
-
-// // === Widget Image/SVG/Video Styles ===
-// const svgImageStyles = new Set([
-//   'fill', 'stroke', 'strokeWidth', 'strokeOpacity', 'vectorEffect', 'transformOrigin',
-//   'perspectiveOrigin', 'display', 'position', 'top', 'right', 'bottom', 'left',
-//   'width', 'height', 'blockSize', 'inlineSize',
-//   'insetBlockStart', 'insetBlockEnd', 'insetInlineStart', 'insetInlineEnd',
-//   '-webkitTapHighlightColor'
-// ]);
-
-// // === Common Background & Color Styles ===
-// const colorBackgroundStyles = new Set([
-//   'background', 'backgroundColor', 'backgroundImage', 'color'
-// ]);
-
-// // === Helper Functions ===
-// function toCamelCase(str) {
-//   return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
-// }
-
-// function filterLayoutStyles(styles) {
-//   const result = {};
-//   for (const key in styles) {
-//     const camelKey = toCamelCase(key);
-//     if (allowedLayoutStyles.has(camelKey) || camelKey.startsWith('background')) {
-//       result[key] = styles[key];
-//     }
-//   }
-//   return result;
-// }
-
-// function filterWidgetStyles(styles) {
-//   const result = {};
-//   for (const key in styles) {
-//     const camelKey = toCamelCase(key);
-//     if (
-//       fontAndTextStyles.has(camelKey) ||
-//       svgImageStyles.has(camelKey) ||
-//       colorBackgroundStyles.has(camelKey)
-//     ) {
-//       result[key] = styles[key];
-//     }
-//   }
-//   return result;
-// }
-
-// function splitNode(node) {
-//   if (!node || typeof node !== 'object') return { layout: null, widget: null };
-
-//   const isWidget = widgetTags.has((node.tag || '').toUpperCase());
-
-//   const layoutStyles = node.styles ? filterLayoutStyles(node.styles) : {};
-//   const widgetStyles = node.styles ? filterWidgetStyles(node.styles) : {};
-
-//   const children = Array.isArray(node.children) ? node.children.map(splitNode) : [];
-
-//   const layoutChildren = children.map(c => c.layout).filter(Boolean);
-//   const widgetChildren = children.map(c => c.widget).filter(Boolean);
-
-//   const baseProps = {
-//     tag: node.tag,
-//     id: node.id || '',
-//     className: node.className || '',
-//     html: node.html
-//   };
-
-//   const layoutNode = !isWidget && (Object.keys(layoutStyles).length > 0 || layoutChildren.length > 0)
-//     ? {
-//         ...baseProps,
-//         ...(Object.keys(layoutStyles).length > 0 ? { styles: layoutStyles } : {}),
-//         ...(layoutChildren.length > 0 ? { children: layoutChildren } : {})
-//       }
-//     : null;
-
-//   const widgetNode = isWidget
-//     ? {
-//         ...baseProps,
-//         ...(Object.keys(widgetStyles).length > 0 ? { styles: widgetStyles } : {}),
-//         ...(widgetChildren.length > 0 ? { children: widgetChildren } : {})
-//       }
-//     : widgetChildren.length > 0 ? widgetChildren.length === 1 ? widgetChildren[0] : widgetChildren : null;
-
-//   return { layout: layoutNode, widget: widgetNode };
-// }
-
-// function splitJsonTree(parsed) {
-//   const layoutTree = {};
-//   const widgetTree = {};
-
-//   for (const key in parsed) {
-//     const { layout, widget } = splitNode(parsed[key]);
-//     if (layout) layoutTree[key] = layout;
-//     if (widget) widgetTree[key] = widget;
-//   }
-
-//   return { layoutTree, widgetTree };
-// }
-
-// // === Section Extraction Function ===
-// function extractSectionFromHtml(htmlContent, sectionId) {
-//   const $ = cheerio.load(htmlContent);
-  
-//   // Try different selector patterns to find the section
-//   const selectors = [
-//     `#${sectionId}`,
-//     `[id="${sectionId}"]`,
-//     `[data-section="${sectionId}"]`,
-//     `.${sectionId}`,
-//     `[class*="${sectionId}"]`
-//   ];
-  
-//   let sectionElement = null;
-//   for (const selector of selectors) {
-//     sectionElement = $(selector).first();
-//     if (sectionElement.length > 0) break;
-//   }
-  
-//   if (!sectionElement || sectionElement.length === 0) {
-//     console.warn(`⚠️ Section ${sectionId} not found in HTML, using fallback approach`);
-//     // Fallback: try to find by text content or use entire body
-//     return $.html();
-//   }
-  
-//   return $.html(sectionElement);
-// }
-
-// // === OpenAI Integration Functions ===
-// async function generateTemplateWithAI(sectionHtml, widgetData, sectionId) {
-//   let templateCounter = 1;
-  
-//   const prompt = `
-// You are an HTML processing AI. Your task is to:
-
-// 1. Analyze the provided HTML section and widget data
-// 2. Replace widget elements with {{template-n}} placeholders
-// 3. Extract widget information and styles
-// 4. Return a JSON response with the processed HTML and template data
-
-// CRITICAL REQUIREMENTS:
-// - Replace widget elements (h1, h2, h3, h4, h5, h6, p, span, button, a, img, svg, video, etc.) with {{template-n}} placeholders
-// - Preserve the overall HTML structure and layout elements
-// - Extract complete widget information including styles
-// - Use sequential numbering for templates (template-1, template-2, etc.)
-
-// Section HTML:
-// ${sectionHtml}
-
-// Widget Data Reference:
-// ${JSON.stringify(widgetData, null, 2)}
-
-// Return ONLY a valid JSON object in this format:
-// {
-//   "processedHtml": "HTML with {{template-n}} placeholders",
-//   "templates": [
-//     {
-//       "id": "template-1",
-//       "type": "heading",
-//       "tagName": "h1",
-//       "className": "class-name",
-//       "idAttr": "element-id",
-//       "innerHTML": "inner content",
-//       "textContent": "text only",
-//       "styles": {},
-//       "isContentWidget": true
-//     }
-//   ]
-// }
-// `;
-
-//   const completion = await openai.chat.completions.create({
-//     model: 'gpt-4o-mini',
-//     messages: [
-//       {
-//         role: 'system',
-//         content: 'You are an HTML processing expert. Return only valid JSON responses without markdown formatting.'
-//       },
-//       {
-//         role: 'user',
-//         content: prompt
-//       }
-//     ],
-//     temperature: 0.1
-//   });
-
-//   const response = completion.choices[0].message.content.trim();
-  
-//   try {
-//     // Clean response of markdown if present
-//     const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-//     return JSON.parse(cleanResponse);
-//   } catch (error) {
-//     console.error('Failed to parse AI response:', error);
-//     console.error('Raw response:', response);
-//     throw new Error('Invalid JSON response from AI');
-//   }
-// }
-
-// async function inlineLayoutStyles(htmlContent, layoutStyles) {
-//   const prompt = `
-// CRITICAL REQUIREMENTS:
-// 1. PRESERVE ALL {{template-n}} placeholders EXACTLY AS IS
-// 2. Apply inline styles from the provided layoutStyles JSON to matching elements
-// 3. Only apply layout-related CSS properties (grid, flex, position, dimensions)
-// 4. Keep all other HTML structure unchanged
-// 5. Match elements by id, class, or tag name
-
-// HTML Content:
-// ${htmlContent}
-
-// Layout Styles to Apply:
-// ${JSON.stringify(layoutStyles, null, 2)}
-
-// Return ONLY the HTML with inline styles applied - NO explanations or markdown.
-// The {{template-n}} placeholders must remain unchanged.
-// `;
-
-//   const completion = await openai.chat.completions.create({
-//     model: 'gpt-3.5-turbo',
-//     messages: [
-//       {
-//         role: 'system',
-//         content: 'You are an HTML/CSS expert. Apply inline styles while preserving template placeholders exactly.'
-//       },
-//       {
-//         role: 'user',
-//         content: prompt
-//       }
-//     ],
-//     temperature: 0.1,
-//     max_tokens: 4000
-//   });
-
-//   let optimizedHtml = completion.choices[0]?.message?.content || '';
-  
-//   // Clean up the response
-//   optimizedHtml = optimizedHtml
-//     .replace(/```html/g, '')
-//     .replace(/```/g, '')
-//     .trim();
-
-//   return optimizedHtml;
-// }
-
-// async function generateBareLayout(htmlContent) {
-//   const prompt = `
-// CRITICAL REQUIREMENTS:
-// 1. PRESERVE ALL {{template-n}} placeholders EXACTLY
-// 2. Generate minimal, clean HTML structure
-// 3. Remove unnecessary wrapper elements
-// 4. Use efficient CSS (flexbox/grid where appropriate)
-// 5. Maintain visual layout integrity
-// 6. Use maximum CSS shorthand properties
-// 7. Achieve significant code reduction while preserving functionality
-
-// Input HTML:
-// ${htmlContent}
-
-// Return ONLY the optimized minimal HTML - NO explanations or markdown.
-// Preserve all {{template-n}} placeholders exactly as they are.
-// `;
-
-//   const completion = await openai.chat.completions.create({
-//     model: "gpt-3.5-turbo",
-//     messages: [
-//       {
-//         role: "system",
-//         content: "You are an HTML optimization expert. Create minimal, efficient HTML while preserving all template placeholders and visual layout."
-//       },
-//       {
-//         role: "user",
-//         content: prompt
-//       }
-//     ],
-//     temperature: 0.1,
-//     max_tokens: 4000
-//   });
-
-//   let optimizedCode = completion.choices[0]?.message?.content || '';
-  
-//   // Clean up response
-//   optimizedCode = optimizedCode
-//     .replace(/```html/g, '')
-//     .replace(/```/g, '')
-//     .trim();
-
-//   return optimizedCode;
-// }
-
-// // === Main Migration Process ===
-// async function processSingleSection(sectionId, sectionStyles, rawHtmlContent, sectionNumber) {
-//   console.log(`\n🔄 Processing Section ${sectionNumber}: ${sectionId}`);
-  
-//   // Step 1: Extract widgets and layout from computed styles
-//   console.log('📋 Step 1: Extracting widgets and layout from computed styles...');
-//   const { layoutTree, widgetTree } = splitJsonTree({ [sectionId]: sectionStyles });
-  
-//   // Save step 1 outputs
-//   await fs.writeFile(
-//     path.join(__dirname, `output/step1_widgets_${sectionId}.json`),
-//     JSON.stringify(widgetTree, null, 2)
-//   );
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `output/step1_layout_${sectionId}.json`),
-//     JSON.stringify(layoutTree, null, 2)
-//   );
-
-//   // Step 2: Extract section HTML and generate templates
-//   console.log('🏗️ Step 2: Extracting section HTML and generating templates...');
-//   const sectionHtml = extractSectionFromHtml(rawHtmlContent, sectionId);
-  
-//   const templateResult = await generateTemplateWithAI(sectionHtml, widgetTree, sectionId);
-  
-//   // Save step 2 outputs
-//   await fs.writeFile(
-//     path.join(__dirname, `output/step2_section_html_${sectionId}.html`),
-//     sectionHtml
-//   );
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `output/step2_templates_${sectionId}.json`),
-//     JSON.stringify(templateResult, null, 2)
-//   );
-
-//   // Step 3: Apply inline layout styles
-//   console.log('🎨 Step 3: Applying inline layout styles...');
-//   const inlineHtml = await inlineLayoutStyles(templateResult.processedHtml, layoutTree);
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `output/step3_inline_layout_${sectionId}.html`),
-//     inlineHtml
-//   );
-
-//   // Step 4: Generate bare minimum HTML
-//   console.log('🔧 Step 4: Generating bare minimum HTML...');
-//   const bareHtml = await generateBareLayout(inlineHtml);
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `output/step4_bare_layout_${sectionId}.html`),
-//     bareHtml
-//   );
-
-//   // Save final summary
-//   const finalResult = {
-//     section: sectionId,
-//     sectionNumber,
-//     processed: true,
-//     timestamp: new Date().toISOString(),
-//     steps: {
-//       step1: {
-//         widgets: `step1_widgets_${sectionId}.json`,
-//         layout: `step1_layout_${sectionId}.json`
-//       },
-//       step2: {
-//         sectionHtml: `step2_section_html_${sectionId}.html`,
-//         templates: `step2_templates_${sectionId}.json`
-//       },
-//       step3: {
-//         inlineLayout: `step3_inline_layout_${sectionId}.html`
-//       },
-//       step4: {
-//         bareLayout: `step4_bare_layout_${sectionId}.html`
-//       }
-//     },
-//     summary: {
-//       widgetCount: templateResult.templates ? templateResult.templates.length : 0,
-//       originalHtmlSize: sectionHtml.length,
-//       finalHtmlSize: bareHtml.length,
-//       compressionRatio: ((sectionHtml.length - bareHtml.length) / sectionHtml.length * 100).toFixed(1) + '%'
-//     }
-//   };
-  
-//   await fs.writeFile(
-//     path.join(__dirname, `output/final_summary_${sectionId}.json`),
-//     JSON.stringify(finalResult, null, 2)
-//   );
-
-//   console.log(`✅ Section ${sectionId} processing completed!`);
-//   console.log(`   - Widgets extracted: ${finalResult.summary.widgetCount}`);
-//   console.log(`   - Size reduction: ${finalResult.summary.compressionRatio}`);
-  
-//   return finalResult;
-// }
-
-// // === API Routes ===
-// app.post('/api/migrate', async (req, res) => {
-//   try {
-//     console.log('🚀 Starting recursive section-by-section migration...');
-    
-//     if (!process.env.OPENAI_API_KEY) {
-//       return res.status(500).json({ 
-//         error: 'OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.' 
-//       });
-//     }
-
-//     // Ensure output directory exists
-//     const outputDir = path.join(__dirname, 'output');
-//     try {
-//       await fs.mkdir(outputDir, { recursive: true });
-//     } catch (err) {
-//       // Directory might already exist
-//     }
-
-//     // Load input files
-//     const computedStylesPath = path.join(__dirname, 'computed-styles.json');
-//     const rawHtmlPath = path.join(__dirname, 'raw.html');
-
-//     let computedStyles, rawHtmlContent;
-    
-//     try {
-//       const computedStylesContent = await fs.readFile(computedStylesPath, 'utf8');
-//       computedStyles = JSON.parse(computedStylesContent);
-//     } catch (error) {
-//       return res.status(400).json({ 
-//         error: 'Could not load computed-styles.json', 
-//         message: error.message 
-//       });
-//     }
-
-//     try {
-//       rawHtmlContent = await fs.readFile(rawHtmlPath, 'utf8');
-//     } catch (error) {
-//       return res.status(400).json({ 
-//         error: 'Could not load raw.html', 
-//         message: error.message 
-//       });
-//     }
-
-//     const sectionIds = Object.keys(computedStyles);
-//     console.log(`📊 Found ${sectionIds.length} sections to process:`, sectionIds);
-
-//     const results = [];
-//     const errors = [];
-
-//     // Process each section recursively
-//     for (let i = 0; i < sectionIds.length; i++) {
-//       const sectionId = sectionIds[i];
-//       const sectionStyles = computedStyles[sectionId];
-      
-//       try {
-//         console.log(`\n--- Processing Section ${i + 1}/${sectionIds.length}: ${sectionId} ---`);
-        
-//         const sectionResult = await processSingleSection(
-//           sectionId, 
-//           sectionStyles, 
-//           rawHtmlContent, 
-//           i + 1
-//         );
-        
-//         results.push(sectionResult);
-        
-//       } catch (error) {
-//         console.error(`❌ Error processing section ${sectionId}:`, error.message);
-//         errors.push({
-//           section: sectionId,
-//           error: error.message,
-//           timestamp: new Date().toISOString()
-//         });
-//       }
-//     }
-
-//     // Generate final migration report
-//     const migrationReport = {
-//       success: true,
-//       totalSections: sectionIds.length,
-//       processedSections: results.length,
-//       failedSections: errors.length,
-//       timestamp: new Date().toISOString(),
-//       results,
-//       errors: errors.length > 0 ? errors : undefined,
-//       summary: {
-//         totalWidgets: results.reduce((sum, r) => sum + (r.summary?.widgetCount || 0), 0),
-//         averageCompression: results.length > 0 
-//           ? (results.reduce((sum, r) => sum + parseFloat(r.summary?.compressionRatio || '0'), 0) / results.length).toFixed(1) + '%'
-//           : '0%'
-//       }
-//     };
-
-//     await fs.writeFile(
-//       path.join(__dirname, 'output/migration_report.json'),
-//       JSON.stringify(migrationReport, null, 2)
-//     );
-
-//     console.log('\n🎉 Migration completed!');
-//     console.log(`✅ Successfully processed: ${results.length} sections`);
-//     console.log(`❌ Failed: ${errors.length} sections`);
-//     console.log(`📊 Total widgets extracted: ${migrationReport.summary.totalWidgets}`);
-//     console.log(`📉 Average compression: ${migrationReport.summary.averageCompression}`);
-
-//     res.json(migrationReport);
-
-//   } catch (error) {
-//     console.error('Migration failed:', error);
-//     res.status(500).json({
-//       error: 'Migration failed',
-//       message: error.message
-//     });
-//   }
-// });
-
-// // Status endpoint
-// app.get('/api/status', async (req, res) => {
-//   try {
-//     const computedStylesExists = await fs.access(path.join(__dirname, 'computed-styles.json')).then(() => true).catch(() => false);
-//     const rawHtmlExists = await fs.access(path.join(__dirname, 'raw.html')).then(() => true).catch(() => false);
-    
-//     res.json({
-//       status: 'ready',
-//       openaiConfigured: !!process.env.OPENAI_API_KEY,
-//       filesReady: {
-//         computedStyles: computedStylesExists,
-//         rawHtml: rawHtmlExists
-//       },
-//       timestamp: new Date().toISOString()
-//     });
-//   } catch (error) {
-//     res.json({
-//       status: 'error',
-//       message: error.message,
-//       timestamp: new Date().toISOString()
-//     });
-//   }
-// });
-
-// // File listing endpoint
-// app.get('/api/files', async (req, res) => {
-//   try {
-//     const outputDir = path.join(__dirname, 'output');
-//     let files = [];
-    
-//     try {
-//       const dirContents = await fs.readdir(outputDir);
-//       files = dirContents.filter(file => file.endsWith('.json') || file.endsWith('.html'));
-//     } catch (error) {
-//       // Output directory doesn't exist yet
-//     }
-    
-//     res.json({ files, count: files.length });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// // Serve the HTML interface
-// app.get('/', (req, res) => {
-//   res.send(`
-// <!DOCTYPE html>
-// <html lang="en">
-// <head>
-//     <meta charset="UTF-8">
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//     <title>Section-by-Section HTML Migration System</title>
-//     <style>
-//         body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-//         .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-//         .button { background: #007bff; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer; margin: 10px 5px; }
-//         .button:hover { background: #0056b3; }
-//         .button:disabled { background: #ccc; cursor: not-allowed; }
-//         .button.secondary { background: #6c757d; }
-//         .button.secondary:hover { background: #545b62; }
-//         .status { margin: 20px 0; padding: 15px; border-radius: 5px; }
-//         .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-//         .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
-//         .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
-//         .loading { background: #cce5ff; border: 1px solid #99d6ff; color: #004085; }
-//         .info { background: #e8f4fd; border: 1px solid #bee5eb; color: #0c5460; }
-//         pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; max-height: 400px; overflow-y: auto; }
-//         .step { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
-//         .files-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 20px 0; }
-//         .file-item { background: #e9ecef; padding: 10px; border-radius: 5px; font-size: 12px; }
-//         h1 { color: #333; margin-bottom: 10px; }
-//         h3 { color: #495057; margin-top: 30px; }
-//         .progress { background: #e9ecef; border-radius: 5px; height: 20px; margin: 10px 0; }
-//         .progress-bar { background: #007bff; height: 100%; border-radius: 5px; transition: width 0.3s; }
-//     </style>
-// </head>
-// <body>
-//     <div class="container">
-//         <h1>🚀 Section-by-Section HTML Migration System</h1>
-//         <p><strong>Recursive Processing Pipeline:</strong></p>
-//         <div class="step">Step 1: Extract widgets & layout from computed styles</div>
-//         <div class="step">Step 2: Process section HTML with AI template generation</div>
-//         <div class="step">Step 3: Apply inline layout styles</div>
-//         <div class="step">Step 4: Generate bare minimum optimized HTML</div>
-        
-//         <div style="margin: 30px 0;">
-//             <button id="migrateBtn" class="button" onclick="startMigration()">🚀 START MIGRATION</button>
-//             <button class="button secondary" onclick="checkStatus()">📊 CHECK STATUS</button>
-//             <button class="button secondary" onclick="listFiles()">📁 LIST OUTPUT FILES</button>
-//         </div>
-        
-//         <div id="status"></div>
-//         <div id="progress" style="display: none;">
-//             <div class="progress">
-//                 <div id="progressBar" class="progress-bar" style="width: 0%;"></div>
-//             </div>
-//             <div id="progressText">Initializing...</div>
-//         </div>
-//         <div id="results"></div>
-//     </div>
-
-//     <script>
-//         let migrationInProgress = false;
-
-//         async function startMigration() {
-//             if (migrationInProgress) return;
-            
-//             const btn = document.getElementById('migrateBtn');
-//             const status = document.getElementById('status');
-//             const results = document.getElementById('results');
-//             const progress = document.getElementById('progress');
-            
-//             migrationInProgress = true;
-//             btn.disabled = true;
-//             btn.textContent = '⏳ PROCESSING...';
-            
-//             status.innerHTML = '<div class="status loading">🔄 Starting recursive section-by-section migration...</div>';
-//             results.innerHTML = '';
-//             progress.style.display = 'block';
-            
-//             try {
-//                 const response = await fetch('/api/migrate', {
-//                     method: 'POST',
-//                     headers: { 'Content-Type': 'application/json' }
-//                 });
-                
-//                 const data = await response.json();
-                
-//                 if (data.success) {
-//                     status.innerHTML = \`
-//                         <div class="status success">
-//                             ✅ Migration completed successfully!<br>
-//                             📊 Processed: \${data.processedSections}/\${data.totalSections} sections<br>
-//                             🎯 Total widgets: \${data.summary.totalWidgets}<br>
-//                             📉 Average compression: \${data.summary.averageCompression}
-//                         </div>
-//                     \`;
-//                     results.innerHTML = '<h3>📋 Detailed Results:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
-                    
-//                     // Update progress bar to 100%
-//                     document.getElementById('progressBar').style.width = '100%';
-//                     document.getElementById('progressText').textContent = 'Migration completed successfully!';
-//                 } else {
-//                     status.innerHTML = '<div class="status error">❌ Migration failed: ' + (data.message || 'Unknown error') + '</div>';
-//                     if (data.errors) {
-//                         results.innerHTML = '<h3>❌ Errors:</h3><pre>' + JSON.stringify(data.errors, null, 2) + '</pre>';
-//                     }
-//                 }
-//             } catch (error) {
-//                 status.innerHTML = '<div class="status error">❌ Network Error: ' + error.message + '</div>';
-//             } finally {
-//                 migrationInProgress = false;
-//                 btn.disabled = false;
-//                 btn.textContent = '🚀 START MIGRATION';
-//                 setTimeout(() => {
-//                     progress.style.display = 'none';
-//                 }, 3000);
-//             }
-//         }
-        
-//         async function checkStatus() {
-//             try {
-//                 const response = await fetch('/api/status');
-//                 const data = await response.json();
-                
-//                 let statusClass = 'info';
-//                 let statusIcon = '📊';
-                
-//                 if (!data.openaiConfigured) {
-//                     statusClass = 'error';
-//                     statusIcon = '❌';
-//                 } else if (!data.filesReady.computedStyles || !data.filesReady.rawHtml) {
-//                     statusClass = 'warning';
-//                     statusIcon = '⚠️';
-//                 } else {
-//                     statusClass = 'success';
-//                     statusIcon = '✅';
-//                 }
-                
-//                 document.getElementById('status').innerHTML = \`
-//                     <div class="status \${statusClass}">
-//                         \${statusIcon} System Status<br>
-//                         OpenAI API: \${data.openaiConfigured ? '✅ Configured' : '❌ Not configured'}<br>
-//                         computed-styles.json: \${data.filesReady.computedStyles ? '✅ Found' : '❌ Missing'}<br>
-//                         raw.html: \${data.filesReady.rawHtml ? '✅ Found' : '❌ Missing'}
-//                     </div>
-//                 \`;
-//             } catch (error) {
-//                 document.getElementById('status').innerHTML = '<div class="status error">❌ Status check failed: ' + error.message + '</div>';
-//             }
-//         }
-        
-//         async function listFiles() {
-//             try {
-//                 const response = await fetch('/api/files');
-//                 const data = await response.json();
-                
-//                 if (data.files.length === 0) {
-//                     document.getElementById('results').innerHTML = '<div class="status info">📁 No output files found yet. Run migration first.</div>';
-//                 } else {
-//                     const filesByStep = {
-//                         'Step 1': data.files.filter(f => f.startsWith('step1_')),
-//                         'Step 2': data.files.filter(f => f.startsWith('step2_')),
-//                         'Step 3': data.files.filter(f => f.startsWith('step3_')),
-//                         'Step 4': data.files.filter(f => f.startsWith('step4_')),
-//                         'Final': data.files.filter(f => f.startsWith('final_') || f.startsWith('migration_'))
-//                     };
-                    
-//                     let html = '<h3>📁 Output Files (' + data.count + ' total)</h3>';
-                    
-//                     for (const [step, files] of Object.entries(filesByStep)) {
-//                         if (files.length > 0) {
-//                             html += '<h4>' + step + ' (' + files.length + ' files)</h4>';
-//                             html += '<div class="files-grid">';
-//                             files.forEach(file => {
-//                                 html += '<div class="file-item">📄 ' + file + '</div>';
-//                             });
-//                             html += '</div>';
-//                         }
-//                     }
-                    
-//                     document.getElementById('results').innerHTML = html;
-//                 }
-//             } catch (error) {
-//                 document.getElementById('results').innerHTML = '<div class="status error">❌ File listing failed: ' + error.message + '</div>';
-//             }
-//         }
-        
-//         // Check status on page load
-//         window.addEventListener('load', checkStatus);
-        
-//         // Simulate progress updates (in a real implementation, you'd use WebSockets or Server-Sent Events)
-//         function simulateProgress() {
-//             if (!migrationInProgress) return;
-            
-//             const progressBar = document.getElementById('progressBar');
-//             const progressText = document.getElementById('progressText');
-//             const currentWidth = parseInt(progressBar.style.width) || 0;
-            
-//             if (currentWidth < 90) {
-//                 progressBar.style.width = (currentWidth + Math.random() * 10) + '%';
-//                 progressText.textContent = 'Processing sections... ' + Math.round(currentWidth) + '% complete';
-//                 setTimeout(simulateProgress, 2000);
-//             }
-//         }
-        
-//         // Start progress simulation when migration begins
-//         document.getElementById('migrateBtn').addEventListener('click', () => {
-//             setTimeout(simulateProgress, 1000);
-//         });
-//     </script>
-// </body>
-// </html>
-//   `);
-// });
-
-// app.listen(PORT, () => {
-//   console.log(`🚀 Section-by-Section Migration Server running on http://localhost:${PORT}`);
-//   console.log(`📋 OpenAI API Key configured: ${!!process.env.OPENAI_API_KEY}`);
-//   console.log(`📁 Working directory: ${__dirname}`);
-//   console.log(`📂 Output directory: ${path.join(__dirname, 'output')}`);
-//   console.log(`\n📋 Required files:`);
-//   console.log(`   - computed-styles.json (computed styles data)`);
-//   console.log(`   - raw.html (raw HTML content)`);
-//   console.log(`\n🔄 Processing pipeline:`);
-//   console.log(`   Step 1: Extract widgets & layout from computed styles`);
-//   console.log(`   Step 2: Process section HTML with AI template generation`);
-//   console.log(`   Step 3: Apply inline layout styles`);
-//   console.log(`   Step 4: Generate optimized bare minimum HTML`);
-// });
-
-// module.exports = app;
-
 const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
@@ -1646,94 +217,269 @@ async function splitComputedStyles(computedStyles, outputDir) {
 async function processWidgetPlaceholders(sectionIndex, sectionHtml, widgetsData, outputDir, globalTemplates) {
   console.log(`   🎯 Step 1: Processing widget placeholders for section ${sectionIndex}...`);
   
-  const prompt = `
-You are processing HTML section content to replace widget elements with template placeholders.
-
-CRITICAL REQUIREMENTS:
-1. Identify all widget elements (h1, h2, h3, h4, h5, h6, p, span, button, a, img, svg, video, etc.)
-2. Replace each widget with {{template-N}} placeholders (starting from the next available template number)
-3. Extract complete widget information including all styles and attributes
-4. Return ONLY valid JSON with processedHtml and templates array
-
-Section HTML:
-${sectionHtml}
-
-Widget Styles Data:
-${JSON.stringify(widgetsData, null, 2)}
-
-Current global template count: ${globalTemplates.length}
-
-Return JSON format:
-{
-  "processedHtml": "HTML with {{template-N}} placeholders",
-  "templates": [
-    {
-      "id": "template-N",
-      "type": "widget_type",
-      "tagName": "tag",
-      "className": "classes",
-      "idAttr": "element_id",
-      "innerHTML": "content",
-      "textContent": "text_only",
-      "styles": {},
-      "attributes": {}
-    }
-  ]
-}
-`;
-
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      {
-        role: 'system',
-        content: 'You are an HTML processing expert. Return only valid JSON responses.'
-      },
-      {
-        role: 'user',
-        content: prompt
-      }
-    ],
-    temperature: 0.1
-  });
-
-  const response = completion.choices[0].message.content.trim();
-  const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  
   try {
-    const result = JSON.parse(cleanResponse);
-    
+    // Initialize the widget processor with in-memory data
+    const processor = new WidgetProcessor({
+      htmlContent: sectionHtml,
+      computedStyles: widgetsData
+    });
+
+    await processor.init();
+    const widgets = await processor.extractWidgets();
+    const results = await processor.processAllWidgets();
+
+    // Get the processed HTML with placeholders
+    const processedHtml = processor.getProcessedHtml();
+
+    // Collect all templates from the processing
+    const templates = [];
+    for (const widget of widgets) {
+      try {
+        const widgetResult = results.find(r => r.widget_id === widget.placeholder);
+        
+        templates.push({
+          id: widget.placeholder.replace(/\{\{|\}\}/g, ''),
+        //   type: widget.tagName,
+        //   tagName: widget.tagName,
+          className: widget.classes,
+        //   idAttr: widget.id,
+          innerHTML: widget.html,
+        //   textContent: widget.textContent,
+          styles: widgetResult?.styles || {},
+        //   attributes: widget.attributes
+        });
+      } catch (error) {
+        console.error(`Failed to process widget ${widget.id}:`, error.message);
+      }
+    }
+
     // Save template section HTML
     const templateSectionFile = `template_section_${sectionIndex}.html`;
     await fs.writeFile(
       path.join(outputDir, templateSectionFile),
-      result.processedHtml
+      processedHtml
     );
-    
+
     // Save local placeholders
     const placeholdersFile = `template_section_${sectionIndex}_placeholders.json`;
     await fs.writeFile(
       path.join(outputDir, placeholdersFile),
-      JSON.stringify(result.templates, null, 2)
+      JSON.stringify(templates, null, 2)
     );
-    
+
     // Update global templates
-    globalTemplates.push(...result.templates);
-    
-    console.log(`   ✅ Created ${result.templates.length} placeholders, saved to ${templateSectionFile}`);
-    
+    globalTemplates.push(...templates);
+
+    console.log(`   ✅ Created ${templates.length} placeholders, saved to ${templateSectionFile}`);
+
     return {
-      processedHtml: result.processedHtml,
-      templates: result.templates,
+      processedHtml,
+      templates,
       templateSectionFile,
       placeholdersFile
     };
-    
+
   } catch (error) {
-    console.error('Failed to parse widget processing response:', error);
+    console.error('Failed to process widget placeholders:', error);
     throw error;
   }
 }
+
+// WidgetProcessor class implementation
+class WidgetProcessor {
+  constructor(options = {}) {
+    this.widgets = [];
+    this.computedStyles = options.computedStyles || null;
+    this.htmlContent = options.htmlContent || '';
+    this.processedHtml = '';
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
+
+  async init() {
+    try {
+      if (!this.computedStyles) {
+        throw new Error('Computed styles data is required');
+      }
+      
+      console.log('✓ Initialized successfully');
+      console.log(`✓ Loaded computed styles with ${Object.keys(this.computedStyles).length} entries`);
+    } catch (error) {
+      console.error('❌ Initialization failed:', error.message);
+      throw error;
+    }
+  }
+
+  async extractWidgets() {
+    try {
+      console.log('📖 Processing HTML content...');
+      const $ = cheerio.load(this.htmlContent);
+
+      // Use the same widget tags as defined in the main code
+      const widgetElements = [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'svg', 'img', 'image', 'video',
+        'span', 'button', 'a', 'text', 'wow-image', 'wow-video', 'wow-svg', 
+        'wow-icon', 'wow-canvas'
+      ];
+
+      let widgetCount = 0;
+
+      // Extract only specified widget elements
+      widgetElements.forEach(tagName => {
+        $(tagName).each((index, element) => {
+          const $element = $(element);
+          widgetCount++;
+          
+          const widget = {
+            id: widgetCount,
+            placeholder: `{{widget-${widgetCount}}}`,
+            html: $.html($element),
+            tagName: tagName.toLowerCase(),
+            selector: tagName,
+            classes: $element.attr('class') || '',
+            id: $element.attr('id') || '',
+            attributes: this.getElementAttributes($element),
+            textContent: $element.text().trim().substring(0, 100) 
+          };
+
+          this.widgets.push(widget);
+          
+          // Replace with placeholder
+          $element.replaceWith(widget.placeholder);
+        });
+      });
+
+      // Store processed HTML
+      this.processedHtml = $.html();
+      
+      console.log(`✓ Extracted ${this.widgets.length} widget elements`);
+      console.log(`✓ Widget types found: ${this.getWidgetStats()}`);
+      
+      return this.widgets;
+    } catch (error) {
+      console.error('❌ Widget extraction failed:', error.message);
+      throw error;
+    }
+  }
+
+  getWidgetStats() {
+    const stats = {};
+    this.widgets.forEach(widget => {
+      stats[widget.tagName] = (stats[widget.tagName] || 0) + 1;
+    });
+    return Object.entries(stats).map(([tag, count]) => `${tag}(${count})`).join(', ');
+  }
+
+  getElementAttributes(element) {
+    const attributes = {};
+    if (element.attribs) {
+      Object.keys(element.attribs).forEach(key => {
+        // Skip class and id as they're handled separately
+        if (key !== 'class' && key !== 'id') {
+          attributes[key] = element.attribs[key];
+        }
+      });
+    }
+    return attributes;
+  }
+
+  getProcessedHtml() {
+    return this.processedHtml;
+  }
+
+  async processWidgetWithAI(widget) {
+    try {
+      console.log(`🤖 Processing widget-${widget.id} with AI...`);
+      
+            const prompt = `
+Analyze this HTML widget element and the provided computed styles. Extract and convert the relevant styles to a clean CSS object format.
+
+Widget ID: ${widget.id}
+Widget HTML:
+${widget.html}
+
+
+Computed Styles:
+${JSON.stringify(this.computedStyles, null, 2)}
+
+Requirements:
+1. Extract only the styles that apply to this specific ${widget.tagName} element
+2. Convert from computed styles format to clean CSS properties
+3. Remove any inline styles and use computed styles instead
+4. Focus on styles relevant to this element type (${widget.tagName})
+5. Include pseudo-element styles if present (:before, :after, :hover, etc.)
+6. Return as a clean JSON object
+
+Please return a JSON object with the following structure:
+{
+  "widget_id": "${widget.placeholder}", "html": "${widget.html}", "styles": { // Block inline styles // all the styles properties from json },
+}
+`;
+
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a CSS expert that converts computed styles to clean CSS objects. Return only valid JSON.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 2000
+      });
+
+      const result = response.choices[0].message.content;
+      let cleanedResult = result.replace(/```json|```/g, '').trim();
+      
+      try {
+        return JSON.parse(cleanedResult);
+      } catch (parseError) {
+        console.warn(`⚠️ Failed to parse AI response for widget-${widget.id}`);
+        return {
+          widget_id: widget.placeholder,
+          error: 'Failed to parse JSON response',
+          raw_response: result
+        };
+      }
+    } catch (error) {
+      console.error(`❌ AI processing failed for widget-${widget.id}:`, error.message);
+      return {
+        widget_id: widget.placeholder,
+        error: error.message
+      };
+    }
+  }
+
+  async processAllWidgets() {
+    console.log(`🚀 Starting AI processing for ${this.widgets.length} widgets...`);
+    
+    const results = [];
+    
+    for (const widget of this.widgets) {
+      try {
+        const result = await this.processWidgetWithAI(widget);
+        results.push(result);
+        
+        // Add delay to respect API rate limits
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error(`❌ Failed to process widget-${widget.id}:`, error.message);
+        results.push({
+          widget_id: widget.placeholder,
+          error: error.message
+        });
+      }
+    }
+
+    return results;
+  }
+}
+
 async function applyInlineLayoutStyles(sectionIndex, templateHtml, layoutsData, outputDir) {
   console.log(`   🎨 Step 2: Applying inline layout styles for section ${sectionIndex}...`);
   
@@ -2224,8 +970,6 @@ app.post('/api/migrate', async (req, res) => {
     });
   }
 });
-
-// Status endpoint
 app.get('/api/status', async (req, res) => {
   try {
     const computedStylesExists = await fs.access(path.join(__dirname, 'computed-styles.json')).then(() => true).catch(() => false);
@@ -2511,12 +1255,12 @@ app.listen(PORT, () => {
 
 module.exports = app;
 
+
 // const express = require('express');
 // const fs = require('fs/promises');
 // const path = require('path');
 // const { OpenAI } = require('openai');
 // const cheerio = require('cheerio');
-// const { z } = require('zod');
 // require('dotenv').config();
 
 // const app = express();
@@ -2731,98 +1475,272 @@ module.exports = app;
 // async function processWidgetPlaceholders(sectionIndex, sectionHtml, widgetsData, outputDir, globalTemplates) {
 //   console.log(`   🎯 Step 1: Processing widget placeholders for section ${sectionIndex}...`);
   
-//   const prompt = `
-// You are processing HTML section content to replace widget elements with template placeholders.
-
-// CRITICAL REQUIREMENTS:
-// 1. Identify all widget elements (h1, h2, h3, h4, h5, h6, p, span, button, a, img, svg, video, etc.)
-// 2. Replace each widget with {{template-N}} placeholders (starting from the next available template number)
-// 3. Extract complete widget information including all styles and attributes
-// 4. Return ONLY valid JSON with processedHtml and templates array
-
-// Section HTML:
-// ${sectionHtml}
-
-// Widget Styles Data:
-// ${JSON.stringify(widgetsData, null, 2)}
-
-// Current global template count: ${globalTemplates.length}
-
-// Return JSON format:
-// {
-//   "processedHtml": "HTML with {{template-N}} placeholders",
-//   "templates": [
-//     {
-//       "id": "template-N",
-//       "type": "widget_type",
-//       "tagName": "tag",
-//       "className": "classes",
-//       "idAttr": "element_id",
-//       "innerHTML": "content",
-//       "textContent": "text_only",
-//       "styles": {},
-//       "attributes": {}
-//     }
-//   ]
-// }
-// `;
-
-//   const completion = await openai.chat.completions.create({
-//     model: 'gpt-4o-mini',
-//     messages: [
-//       {
-//         role: 'system',
-//         content: 'You are an HTML processing expert. Return only valid JSON responses.'
-//       },
-//       {
-//         role: 'user',
-//         content: prompt
-//       }
-//     ],
-//     temperature: 0.1
-//   });
-
-//   const response = completion.choices[0].message.content.trim();
-//   const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  
 //   try {
-//     const result = JSON.parse(cleanResponse);
-    
+//     // Initialize the widget processor with in-memory data
+//     const processor = new WidgetProcessor({
+//       htmlContent: sectionHtml,
+//       computedStyles: widgetsData
+//     });
+
+//     await processor.init();
+//     const widgets = await processor.extractWidgets();
+//     const results = await processor.processAllWidgets();
+
+//     // Get the processed HTML with placeholders
+//     const processedHtml = processor.getProcessedHtml();
+
+//     // Collect all templates from the processing
+//     const templates = [];
+//     for (const widget of widgets) {
+//       try {
+//         const widgetResult = results.find(r => r.widget_id === widget.placeholder);
+        
+//         templates.push({
+//           id: widget.placeholder.replace(/\{\{|\}\}/g, ''),
+//         //   type: widget.tagName,
+//         //   tagName: widget.tagName,
+//           className: widget.classes,
+//         //   idAttr: widget.id,
+//           innerHTML: widget.html,
+//         //   textContent: widget.textContent,
+//           styles: widgetResult?.styles || {},
+//         //   attributes: widget.attributes
+//         });
+//       } catch (error) {
+//         console.error(`Failed to process widget ${widget.id}:`, error.message);
+//       }
+//     }
+
 //     // Save template section HTML
 //     const templateSectionFile = `template_section_${sectionIndex}.html`;
 //     await fs.writeFile(
 //       path.join(outputDir, templateSectionFile),
-//       result.processedHtml
+//       processedHtml
 //     );
-    
+
 //     // Save local placeholders
 //     const placeholdersFile = `template_section_${sectionIndex}_placeholders.json`;
 //     await fs.writeFile(
 //       path.join(outputDir, placeholdersFile),
-//       JSON.stringify(result.templates, null, 2)
+//       JSON.stringify(templates, null, 2)
 //     );
-    
+
 //     // Update global templates
-//     globalTemplates.push(...result.templates);
-    
-//     console.log(`   ✅ Created ${result.templates.length} placeholders, saved to ${templateSectionFile}`);
-    
+//     globalTemplates.push(...templates);
+
+//     console.log(`   ✅ Created ${templates.length} placeholders, saved to ${templateSectionFile}`);
+
 //     return {
-//       processedHtml: result.processedHtml,
-//       templates: result.templates,
+//       processedHtml,
+//       templates,
 //       templateSectionFile,
 //       placeholdersFile
 //     };
-    
+
 //   } catch (error) {
-//     console.error('Failed to parse widget processing response:', error);
+//     console.error('Failed to process widget placeholders:', error);
 //     throw error;
 //   }
 // }
+
+// // WidgetProcessor class implementation
+// class WidgetProcessor {
+//   constructor(options = {}) {
+//     this.widgets = [];
+//     this.computedStyles = options.computedStyles || null;
+//     this.htmlContent = options.htmlContent || '';
+//     this.processedHtml = '';
+//     this.openai = new OpenAI({
+//       apiKey: process.env.OPENAI_API_KEY
+//     });
+//   }
+
+//   async init() {
+//     try {
+//       if (!this.computedStyles) {
+//         throw new Error('Computed styles data is required');
+//       }
+      
+//       console.log('✓ Initialized successfully');
+//       console.log(`✓ Loaded computed styles with ${Object.keys(this.computedStyles).length} entries`);
+//     } catch (error) {
+//       console.error('❌ Initialization failed:', error.message);
+//       throw error;
+//     }
+//   }
+
+//   async extractWidgets() {
+//     try {
+//       console.log('📖 Processing HTML content...');
+//       const $ = cheerio.load(this.htmlContent);
+
+//       // Use the same widget tags as defined in the main code
+//       const widgetElements = [
+//         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'svg', 'img', 'image', 'video',
+//         'span', 'button', 'a', 'text', 'wow-image', 'wow-video', 'wow-svg', 
+//         'wow-icon', 'wow-canvas'
+//       ];
+
+//       let widgetCount = 0;
+
+//       // Extract only specified widget elements
+//       widgetElements.forEach(tagName => {
+//         $(tagName).each((index, element) => {
+//           const $element = $(element);
+//           widgetCount++;
+          
+//           const widget = {
+//             id: widgetCount,
+//             placeholder: `{{template-${widgetCount}}}`,
+//             html: $.html($element),
+//             tagName: tagName.toLowerCase(),
+//             selector: tagName,
+//             classes: $element.attr('class') || '',
+//             id: $element.attr('id') || '',
+//             attributes: this.getElementAttributes($element),
+//             textContent: $element.text().trim().substring(0, 100) // First 100 chars for reference
+//           };
+
+//           this.widgets.push(widget);
+          
+//           // Replace with placeholder
+//           $element.replaceWith(widget.placeholder);
+//         });
+//       });
+
+//       // Store processed HTML
+//       this.processedHtml = $.html();
+      
+//       console.log(`✓ Extracted ${this.widgets.length} widget elements`);
+//       console.log(`✓ Widget types found: ${this.getWidgetStats()}`);
+      
+//       return this.widgets;
+//     } catch (error) {
+//       console.error('❌ Widget extraction failed:', error.message);
+//       throw error;
+//     }
+//   }
+
+//   getWidgetStats() {
+//     const stats = {};
+//     this.widgets.forEach(widget => {
+//       stats[widget.tagName] = (stats[widget.tagName] || 0) + 1;
+//     });
+//     return Object.entries(stats).map(([tag, count]) => `${tag}(${count})`).join(', ');
+//   }
+
+//   getElementAttributes(element) {
+//     const attributes = {};
+//     if (element.attribs) {
+//       Object.keys(element.attribs).forEach(key => {
+//         // Skip class and id as they're handled separately
+//         if (key !== 'class' && key !== 'id') {
+//           attributes[key] = element.attribs[key];
+//         }
+//       });
+//     }
+//     return attributes;
+//   }
+
+//   getProcessedHtml() {
+//     return this.processedHtml;
+//   }
+
+//   async processWidgetWithAI(widget) {
+//     try {
+//       console.log(`🤖 Processing widget-${widget.id} with AI...`);
+      
+//       const prompt = `
+// Analyze this HTML widget element and extract its styles and attributes. Return a clean JSON object with the following structure:
+
+// {
+//   "widget_id": "${widget.placeholder}",
+//   "type": "${widget.tagName}",
+//   "styles": {
+//     // All relevant CSS styles for this widget
+//   }
+// }
+
+// Widget HTML:
+// ${widget.html}
+
+// Text Content: ${widget.textContent}
+
+// Requirements:
+// 1. Extract only styles that apply to this specific widget
+// 2. Convert styles to camelCase format
+// 3. Include only relevant styles for the widget type
+// 4. Preserve all important attributes
+// 5. Return valid JSON only
+// `;
+
+//       const response = await this.openai.chat.completions.create({
+//         model: 'gpt-3.5-turbo',
+//         messages: [
+//           {
+//             role: 'system',
+//             content: 'You are a CSS expert that converts computed styles to clean CSS objects. Return only valid JSON.'
+//           },
+//           {
+//             role: 'user',
+//             content: prompt
+//           }
+//         ],
+//         temperature: 0.1,
+//         max_tokens: 2000
+//       });
+
+//       const result = response.choices[0].message.content;
+//       let cleanedResult = result.replace(/```json|```/g, '').trim();
+      
+//       try {
+//         return JSON.parse(cleanedResult);
+//       } catch (parseError) {
+//         console.warn(`⚠️ Failed to parse AI response for widget-${widget.id}`);
+//         return {
+//           widget_id: widget.placeholder,
+//           error: 'Failed to parse JSON response',
+//           raw_response: result
+//         };
+//       }
+//     } catch (error) {
+//       console.error(`❌ AI processing failed for widget-${widget.id}:`, error.message);
+//       return {
+//         widget_id: widget.placeholder,
+//         error: error.message
+//       };
+//     }
+//   }
+
+//   async processAllWidgets() {
+//     console.log(`🚀 Starting AI processing for ${this.widgets.length} widgets...`);
+    
+//     const results = [];
+    
+//     for (const widget of this.widgets) {
+//       try {
+//         const result = await this.processWidgetWithAI(widget);
+//         results.push(result);
+        
+//         // Add delay to respect API rate limits
+//         await new Promise(resolve => setTimeout(resolve, 500));
+//       } catch (error) {
+//         console.error(`❌ Failed to process widget-${widget.id}:`, error.message);
+//         results.push({
+//           widget_id: widget.placeholder,
+//           error: error.message
+//         });
+//       }
+//     }
+
+//     return results;
+//   }
+// }
+
 // async function applyInlineLayoutStyles(sectionIndex, templateHtml, layoutsData, outputDir) {
 //   console.log(`   🎨 Step 2: Applying inline layout styles for section ${sectionIndex}...`);
   
-//   // SOLUTION 1: Extract and protect placeholders before AI processing
+//   // Extract and protect placeholders before AI processing
 //   const placeholderMap = new Map();
 //   let protectedHtml = templateHtml;
   
@@ -2840,18 +1758,13 @@ module.exports = app;
 //   }
   
 //   const prompt = `
-// CRITICAL REQUIREMENTS - FOLLOW EXACTLY:
-// 1. NEVER modify or remove ANY tokens that start with __PROTECTED_PLACEHOLDER_
-// 2. Only convert layout-related CSS properties to inline styles:
-//    - Grid: display:grid, grid-template-*, gap, grid-column, grid-row, etc.
-//    - Flex: display:flex, flex-direction, justify-content, align-items, etc.
-//    - Position: position, top, right, bottom, left, z-index
-//    - Size: width, height, min-width, max-width, etc.
-// 3. Keep all HTML structure, attributes and __PROTECTED_PLACEHOLDER_ tokens unchanged
-// 4. Only modify elements that have matching styles in the computedStyles
-// 5. Do not add any additional elements or remove existing ones
-// 6. Maintain all original class names and IDs
-// 7. ALL __PROTECTED_PLACEHOLDER_ tokens MUST remain in the output
+//  PROCESS THIS HTML CONTENT WITH THESE REQUIREMENTS:
+//         1. Apply ONLY grid/flex/position CSS properties from the JSON layout
+//         2. PRESERVE ALL {{template-n}} PLACEHOLDERS EXACTLY AS THEY ARE
+//         3. Return ONLY the modified HTML with inline styles
+//         4. Do not modify any content between {{ and }}
+//         5. Do not add any explanations or additional text
+
 
 // HTML to process (WITH PROTECTED TOKENS):
 // ${protectedHtml}
@@ -2859,24 +1772,18 @@ module.exports = app;
 // Layout Styles Data:
 // ${JSON.stringify(layoutsData, null, 2)}
 
-// Return ONLY the modified HTML with inline styles added - NO explanations, NO code blocks, NO markdown formatting.
-// ALL __PROTECTED_PLACEHOLDER_ tokens must remain unchanged and in their original positions.
 // `;
 
 //   const completion = await openai.chat.completions.create({
-//     model: 'gpt-3.5-turbo',
+//     model: 'gpt-4o-mini',
 //     messages: [
-//       {
-//         role: 'system',
-//         content: 'You are an expert HTML/CSS optimizer. Convert styles to inline while EXACTLY preserving all __PROTECTED_PLACEHOLDER_ tokens. Never modify or remove protected tokens.'
-//       },
 //       {
 //         role: 'user',
 //         content: prompt
 //       }
 //     ],
-//     temperature: 0,  // Set to 0 for maximum consistency
-//     max_tokens: 4000
+//     temperature: 0.3,  // Set to 0 for maximum consistency
+//     max_tokens: 4096
 //   });
 
 //   let styledHtml = completion.choices[0]?.message?.content || '';
@@ -2917,92 +1824,51 @@ module.exports = app;
 //   };
 // }
 
-// const BareMinimumHtmlSchema = z.object({
-//   optimizedHtml: z.string()
-//     .min(50, "HTML content is too short")
-//     .refine((html) => {
-//       // Must contain template tags wrapper
-//       return /\{\{template-n\}\}[\s\S]*?\{\{\/template-n\}\}/.test(html);
-//     }, "Must wrap output in {{template-n}} tags")
-//     .refine((html) => {
-//       // Should preserve template placeholders
-//       const placeholderCount = (html.match(/\{\{template-\d+\}\}/g) || []).length;
-//       return placeholderCount >= 0; // Allow 0 or more placeholders
-//     }, "Must preserve template placeholders")
-//     .refine((html) => {
-//       // Should not contain style tags (inline styles only)
-//       return !/<style[\s\S]*?<\/style>/i.test(html);
-//     }, "Must use inline styles only, no <style> tags")
-//     .refine((html) => {
-//       // Should not contain class attributes (line-styles only)
-//       return !/class\s*=/i.test(html);
-//     }, "Must use inline styles only, no class attributes"),
-  
-//   lineCount: z.number().positive("Line count must be positive"),
-//   reductionPercentage: z.number()
-//     .min(70, "Must achieve at least 70% reduction")
-//     .max(90, "Reduction cannot exceed 90%"),
-  
-//   preservedPlaceholders: z.array(z.string()).optional(),
-//   optimizationTechniques: z.array(z.string()).optional()
-// });
+// async function applyInlineStylesManually(html, layoutsData) {
+//   // Fallback implementation for when AI fails
+//   // This would need to be implemented based on your specific requirements
+//   return html;
+// }
 
 // async function generateBareMinimumHtml(sectionIndex, styledHtml, outputDir) {
 //   console.log(`   🔧 Step 3: Generating bare minimum HTML for section ${sectionIndex}...`);
   
-//   const originalLineCount = styledHtml.split('\n').length;
-//   const targetLineCount = Math.round(originalLineCount * 0.25); // 75% reduction target
-  
 //   const prompt = `
-// You are an HTML optimization expert. Follow these CRITICAL REQUIREMENTS:
+// CRITICAL REQUIREMENTS:
+// 1. MUST wrap final output in {{template-n}} tags
+// 2. MUST preserve ALL {{template-xx}} placeholders
+// 3. MUST achieve 70-80% line reduction
+// 4. MUST maintain pixel-perfect visual match
+// 5. MUST use line-styles only (no classes, no <style> tags)
+// 6. MUST use maximum CSS shorthand
+// 7. MUST remove all unnecessary elements and wrappers
+// 8. MUST use modern CSS techniques (Flexbox/Grid)
 
-// RESPONSE FORMAT (MUST FOLLOW EXACTLY):
-// 1. Start with: {{template-n}}
-// 2. Provide optimized HTML content
-// 3. End with: {{/template-n}}
-// 4. Then provide a summary in this JSON format:
-// {
-//   "lineCount": [actual line count of optimized HTML],
-//   "reductionPercentage": [percentage reduction achieved],
-//   "preservedPlaceholders": ["list", "of", "template", "placeholders"],
-//   "optimizationTechniques": ["techniques", "used"]
-// }
+// OPTIMIZATION TECHNIQUES TO USE:
+// - Remove ALL unnecessary wrapper divs
+// - Use CSS Grid/Flexbox efficiently
+// - Maximum CSS shorthand (inset, margin/padding shorthand)
+// - Combine redundant styles
+// - Eliminate empty/irrelevant elements
 
-// OPTIMIZATION REQUIREMENTS:
-// - MUST achieve 70-80% line reduction (target: ${targetLineCount} lines from ${originalLineCount})
-// - MUST preserve ALL {{template-xx}} placeholders exactly
-// - MUST maintain pixel-perfect visual match
-// - MUST use inline styles only (no classes, no <style> tags)
-// - MUST use maximum CSS shorthand properties
-// - MUST remove unnecessary wrapper divs
-// - MUST use modern CSS (Flexbox/Grid/Postion) efficiently
-
-// TECHNIQUES TO APPLY:
-// - Combine margin/padding: "margin: 10px 5px" instead of separate properties
-// - Use inset shorthand: "inset: 0" instead of top/right/bottom/left
-// - Remove empty/redundant elements
-// - Consolidate similar elements
-// - Use CSS Grid/Flexbox for layouts
-// - Minimize HTML structure depth
-
-// Original HTML (${originalLineCount} lines):
+// Original HTML (${styledHtml.split('\n').length} lines):
 // ${styledHtml}
 
-// Provide optimized HTML wrapped in {{template-n}} tags:
+// Provide optimized HTML wrapped in {{template-n}} tags (target ${Math.round(styledHtml.split('\n').length * 0.2)} lines):
 // `;
 
 //   const completion = await openai.chat.completions.create({
-//     model: "gpt-4-turbo", // Can use gpt-3.5-turbo for compatibility
+//     model: "gpt-4-turbo",
 //     messages: [
 //       {
 //         role: "system",
-//         content: `You are an expert HTML optimizer. You MUST:
-// 1. Wrap ALL output in {{template-n}} tags
-// 2. Preserve ALL {{template-xx}} placeholders exactly
-// 3. Use ONLY inline styles (no classes, no <style> tags)
-// 4. Achieve 70-80% line reduction while maintaining visual fidelity
-// 5. Provide the exact JSON summary format requested
-// 6. Use maximum CSS shorthand properties`
+//         content: `You are an HTML optimization expert. You MUST:
+// 1. Maintain identical visual output 
+// 2. Preserve ALL {{template-xx}} placeholders
+// 3. Achieve maximum line reduction
+// 4. Wrap output in {{template-n}} tags
+// 5. Use maximum CSS shorthand
+// 6. Keep only relavant elements`
 //       },
 //       {
 //         role: "user",
@@ -3013,177 +1879,28 @@ module.exports = app;
 //     max_tokens: 4000
 //   });
 
-//   let rawResponse = completion.choices[0]?.message?.content || '';
+//   let bareHtml = completion.choices[0]?.message?.content || '';
   
-//   try {
-//     // Extract template content
-//     const templateMatch = rawResponse.match(/\{\{template-n\}\}([\s\S]*?)\{\{\/template-n\}\}/);
-//     if (!templateMatch) {
-//       throw new Error("Response missing required {{template-n}} wrapper tags");
-//     }
-    
-//     let bareHtml = templateMatch[1].trim();
-    
-//     // Extract JSON summary if present
-//     const jsonMatch = rawResponse.match(/\{[\s\S]*?"lineCount"[\s\S]*?\}/);
-//     let summaryData = {};
-    
-//     if (jsonMatch) {
-//       try {
-//         summaryData = JSON.parse(jsonMatch[0]);
-//       } catch (e) {
-//         console.warn(`   ⚠️  Could not parse summary JSON for section ${sectionIndex}, using defaults`);
-//       }
-//     }
-    
-//     // Calculate actual metrics
-//     const actualLineCount = bareHtml.split('\n').length;
-//     const reductionPercentage = Math.round(((originalLineCount - actualLineCount) / originalLineCount) * 100);
-    
-//     // Find preserved placeholders
-//     const preservedPlaceholders = bareHtml.match(/\{\{template-\d+\}\}/g) || [];
-    
-//     // Prepare validation data
-//     const validationData = {
-//       optimizedHtml: `{{template-n}}${bareHtml}{{/template-n}}`,
-//       lineCount: actualLineCount,
-//       reductionPercentage: reductionPercentage,
-//       preservedPlaceholders: preservedPlaceholders,
-//       optimizationTechniques: summaryData.optimizationTechniques || [
-//         "CSS shorthand properties",
-//         "Removed wrapper divs",
-//         "Inline styles only",
-//         "Modern CSS layout"
-//       ]
-//     };
-    
-//     // Validate with Zod schema
-//     const validatedOutput = BareMinimumHtmlSchema.parse(validationData);
-    
-//     console.log(`   📊 Validation passed: ${validatedOutput.lineCount} lines (${validatedOutput.reductionPercentage}% reduction)`);
-//     console.log(`   🎯 Preserved placeholders: ${validatedOutput.preservedPlaceholders.length}`);
-    
-//     // Save the file
-//     const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-//     await fs.writeFile(
-//       path.join(outputDir, bareMinimumFile),
-//       bareHtml
-//     );
-    
-//     // Save metrics file for debugging
-//     const metricsFile = `bareminimum_section_${sectionIndex}_metrics.json`;
-//     await fs.writeFile(
-//       path.join(outputDir, metricsFile),
-//       JSON.stringify({
-//         sectionIndex,
-//         originalLineCount,
-//         optimizedLineCount: validatedOutput.lineCount,
-//         reductionPercentage: validatedOutput.reductionPercentage,
-//         preservedPlaceholders: validatedOutput.preservedPlaceholders,
-//         optimizationTechniques: validatedOutput.optimizationTechniques,
-//         validationPassed: true,
-//         timestamp: new Date().toISOString()
-//       }, null, 2)
-//     );
-    
-//     console.log(`   ✅ Generated bare minimum HTML, saved to ${bareMinimumFile}`);
-    
-//     return {
-//       bareHtml,
-//       bareMinimumFile,
-//       metricsFile,
-//       metrics: {
-//         originalLines: originalLineCount,
-//         optimizedLines: validatedOutput.lineCount,
-//         reductionPercentage: validatedOutput.reductionPercentage,
-//         preservedPlaceholders: validatedOutput.preservedPlaceholders,
-//         optimizationTechniques: validatedOutput.optimizationTechniques
-//       },
-//       validated: true
-//     };
-    
-//   } catch (error) {
-//     if (error instanceof z.ZodError) {
-//       console.error(`   ❌ Validation failed for section ${sectionIndex}:`, error.errors);
-      
-//       // Fallback: try to extract and use HTML anyway
-//       let fallbackHtml = rawResponse.replace(/```html/g, '').replace(/```/g, '').trim();
-//       const templateMatch = fallbackHtml.match(/\{\{template-n\}\}([\s\S]*?)\{\{\/template-n\}\}/);
-//       if (templateMatch) {
-//         fallbackHtml = templateMatch[1].trim();
-//       }
-      
-//       const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-//       await fs.writeFile(
-//         path.join(outputDir, bareMinimumFile),
-//         fallbackHtml
-//       );
-      
-//       // Save error metrics
-//       const errorMetricsFile = `bareminimum_section_${sectionIndex}_errors.json`;
-//       await fs.writeFile(
-//         path.join(outputDir, errorMetricsFile),
-//         JSON.stringify({
-//           sectionIndex,
-//           validationErrors: error.errors,
-//           rawResponse: rawResponse.substring(0, 1000), // First 1000 chars
-//           fallbackUsed: true,
-//           timestamp: new Date().toISOString()
-//         }, null, 2)
-//       );
-      
-//       console.log(`   ⚠️  Used fallback HTML despite validation errors`);
-      
-//       return {
-//         bareHtml: fallbackHtml,
-//         bareMinimumFile,
-//         errorMetricsFile,
-//         validationErrors: error.errors,
-//         validated: false
-//       };
-//     }
-    
-//     throw error;
-//   }
-// }
-
-// // Helper function to manually apply styles as fallback (referenced in applyInlineLayoutStyles)
-// async function applyInlineStylesManually(templateHtml, layoutsData) {
-//   console.log(`   🔄 Applying styles manually as fallback...`);
-  
-//   // Simple manual style application - you can enhance this as needed
-//   let styledHtml = templateHtml;
-  
-//   // This is a basic implementation - you might want to use cheerio for more complex operations
-//   try {
-//     const $ = cheerio.load(styledHtml);
-    
-//     // Apply styles from layoutsData to matching elements
-//     if (layoutsData && typeof layoutsData === 'object') {
-//       for (const [selector, styles] of Object.entries(layoutsData)) {
-//         if (styles && typeof styles === 'object') {
-//           const elements = $(selector);
-//           if (elements.length > 0) {
-//             let styleString = '';
-//             for (const [prop, value] of Object.entries(styles)) {
-//               if (typeof value === 'string' || typeof value === 'number') {
-//                 // Convert camelCase to kebab-case
-//                 const cssProp = prop.replace(/([A-Z])/g, '-$1').toLowerCase();
-//                 styleString += `${cssProp}: ${value}; `;
-//               }
-//             }
-//             elements.attr('style', styleString.trim());
-//           }
-//         }
-//       }
-//     }
-    
-//     styledHtml = $.html();
-//   } catch (error) {
-//     console.warn(`   ⚠️  Manual style application failed, using original HTML`);
+//   // Extract content from template tags
+//   const templateMatch = bareHtml.match(/\{\{template-n\}\}([\s\S]*?)\{\{\/template-n\}\}/);
+//   if (templateMatch) {
+//     bareHtml = templateMatch[1].trim();
+//   } else {
+//     bareHtml = bareHtml.replace(/```html/g, '').replace(/```/g, '').trim();
 //   }
   
-//   return styledHtml;
+//   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
+//   await fs.writeFile(
+//     path.join(outputDir, bareMinimumFile),
+//     bareHtml
+//   );
+  
+//   console.log(`   ✅ Generated bare minimum HTML, saved to ${bareMinimumFile}`);
+  
+//   return {
+//     bareHtml,
+//     bareMinimumFile
+//   };
 // }
 
 // // === MAIN MIGRATION PROCESS ===
@@ -3433,7 +2150,6 @@ module.exports = app;
 //   }
 // });
 
-// // Serve the HTML interface
 // app.get('/', (req, res) => {
 //   res.send(`
 // <!DOCTYPE html>
@@ -3662,4 +2378,3 @@ module.exports = app;
 // });
 
 // module.exports = app;
-
