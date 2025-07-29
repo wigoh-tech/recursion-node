@@ -1268,7 +1268,7 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
   const allDivs = [...topLevelDivs, ...bgLayerDivs];
   let processedCount = 0;
 
-  const TIMEOUT = 60000; // 60 second timeout for large components
+  const TIMEOUT = 180000; 
 
   for (const divData of allDivs) {
     const { id, html } = divData;
@@ -1305,12 +1305,16 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
       
     } catch (error) {
       console.error(`   ❌ OpenAI processing failed: ${error.message}`);
-      console.log('   ↪️  Keeping original version');
+      console.log('   ↪️  Skipping this component (no fallback to original)');
       
-      // Store original HTML if optimization fails
-      templates[templateKey] = html;
-      
-      // Replace with template placeholder anyway
+      // Option 1: Store an empty string (or error message)
+      templates[templateKey] = '';
+      // Option 2: You can also remove the placeholder entirely:
+      // $(divData.element).remove();
+      // Option 3: Or insert a visible error marker:
+      // templates[templateKey] = `<div style="color:red;">Optimization failed: ${error.message}</div>`;
+
+      // Still replace with template placeholder (so the pipeline continues)
       $(divData.element).replaceWith(`{{${templateKey}}}`);
     }
   }
@@ -1361,55 +1365,101 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
     }
   };
 }
+const OPTIMIZATION_PROMPT = `
+You are a Wix HTML optimization expert. Carefully reduce this HTML while maintaining identical rendering.
+
+STRICT RULES:
+1. OUTPUT ONLY THE OPTIMIZED HTML
+2. Merge nested divs with identical dimensions/positioning
+3. Remove empty divs that only contain other divs
+4. Preserve all data-* attributes and Wix classes
+5. Combine style properties using shorthand
+6. Keep all functional attributes (id, class)
+7. Maintain pixel-perfect layout
+
+CRITICAL: The output must render exactly the same as input.
+
+EXAMPLE INPUT:
+<div id="bgLayers_comp-lt8qhfaf" data-hook="bgLayers" data-motion-part="BG_LAYER comp-lt8qhfaf" class="MW5IZ" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px;">
+  <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px;"></div>
+  <div id="bgMedia_comp-lt8qhfaf" data-motion-part="BG_MEDIA comp-lt8qhfaf" class="VgO9Yg" style="height: 421px;"></div>
+</div>
+
+EXAMPLE OUTPUT:
+<div id="bgLayers_comp-lt8qhfaf" data-hook="bgLayers" data-motion-part="BG_LAYER comp-lt8qhfaf" data-testid="colorUnderlay" class="MW5IZ LWbAav Kv1aVt VgO9Yg" style="position:absolute;top:0;bottom:0;left:0;right:0;height:421px"></div>
+
+EXAMPLE INPUT:
+<div id="comp-irqduxcu" class="comp-irqduxcu YzqVZ wixui-column-strip__column" style="bottom: 0px; flex-basis: 0%; flex-grow: 325; height: 421px; left: 0px; min-height: auto; position: relative; right: 0px; top: 0px; width: 641.711px;">
+  <div id="bgLayers_comp-irqduxcu" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxcu" class="MW5IZ" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px; width: 641.711px;">
+    <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px; width: 641.711px;"></div>
+    <div id="bgMedia_comp-irqduxcu" data-motion-part="BG_MEDIA comp-irqduxcu" class="VgO9Yg" style="height: 421px; width: 641.711px"></div>
+  </div>
+  <div data-mesh-id="comp-irqduxcuinlineContent" data-testid="inline-content" class="" style="bottom: 0px; height: 421px; left: 0px; position: relative; right: 0px; top: 0px; width: 641.711px;">
+    <div data-mesh-id="comp-irqduxcuinlineContent-gridContainer" data-testid="mesh-container-content" style="display: grid; grid-template-columns: 641.711px; grid-template-rows: 150px 42.5px 228.5px; height: 421px; min-height: 421px; width: 641.711px;">
+      <div id="comp-isejheta" class="comp-isejheta wixui-vector-image" style="align-self: start; bottom: 0px; grid-column-end: 2; grid-column-start: 1; grid-row-end: 2; grid-row-start: 1; height: 48px; left: 143px; min-height: auto; min-width: auto; position: relative; right: -143px; top: 0px; width: 50px;">
+        <div data-testid="svgRoot-comp-isejheta" class="AKxYR5 VZMYf comp-isejheta" style="bottom: 0px; height: 48px; left: 0px; position: absolute; right: 0px; top: 0px; width: 50px;">
+          {{template-1}}
+        </div>
+      </div>
+      <div id="comp-irqduxd4" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxd4 wixui-rich-text" data-testid="richTextElement" style="align-self: start; bottom: 0px; grid-column-end: 2; grid-column-start: 1; grid-row-end: 3; grid-row-start: 2; height: 23.5px; left: 72px; min-height: auto; min-width: auto; position: relative; right: -72px; top: 0px; width: 193px;">
+        {{template-2}}
+      </div>
+      <div id="comp-irqduxcy" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxcy wixui-rich-text" data-testid="richTextElement" style="align-self: start; bottom: 0px; grid-column-end: 2; grid-column-start: 1; grid-row-end: 4; grid-row-start: 3; height: 108.812px; left: 23px; min-height: auto; min-width: auto; position: relative; right: -23px; top: 0px; width: 288px;">
+        {{template-3}}
+      </div>
+    </div>
+  </div>
+</div>
+
+EXAMPLE OUTPUT:
+<div id="comp-irqduxcu" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxcu" data-testid="colorUnderlay" data-mesh-id="comp-irqduxcuinlineContent-gridContainer" class="comp-irqduxcu YzqVZ wixui-column-strip__column MW5IZ LWbAav Kv1aVt VgO9Yg" style="bottom:0;flex-basis:0%;flex-grow:325;height:421px;left:0;min-height:auto;position:relative;right:0;top:0;width:641.711px;display:grid;grid-template-columns:641.711px;grid-template-rows:150px 42.5px 228.5px;min-height:421px">
+<div id="comp-isejheta" data-testid="svgRoot-comp-isejheta" class="comp-isejheta wixui-vector-image AKxYR5 VZMYf" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:2;grid-row-start:1;height:48px;left:143px;min-height:auto;min-width:auto;position:relative;right:-143px;top:0;width:50px">{{template-1}}</div>
+<div id="comp-irqduxd4" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxd4 wixui-rich-text" data-testid="richTextElement" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:3;grid-row-start:2;height:23.5px;left:72px;min-height:auto;min-width:auto;position:relative;right:-72px;top:0;width:193px">{{template-2}}</div>
+<div id="comp-irqduxcy" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxcy wixui-rich-text" data-testid="richTextElement" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:4;grid-row-start:3;height:108.812px;left:23px;min-height:auto;min-width:auto;position:relative;right:-23px;top:0;width:288px">{{template-3}}</div>
+</div>
+
+EXAMPLE INPUT:
+<div id="comp-irte5pmq" class="Vd6aQZ ignore-focus comp-irte5pmq" role="region" tabindex="-1" aria-label="Who are we" style="align-self: start; bottom: 0px; grid-column-end: 2; grid-column-start: 1; grid-row-end: 2; grid-row-start: 1; height: 90px; left: 0px; min-height: auto; min-width: auto; position: relative; right: 0px; top: 0px;">
+  <div id="whoarewe"></div>
+  {{template-10}}
+</div>
+
+EXAMPLE OUTPUT:
+<div id="whoarewe" class="Vd6aQZ ignore-focus comp-irte5pmq" role="region" tabindex="-1" aria-label="Who are we" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:2;grid-row-start:1;height:90px;left:0;min-height:auto;min-width:auto;position:relative;right:0;top:0">{{template-10}}</div>
+
+HTML TO OPTIMIZE:
+`;
+
 async function optimizeWithAI(html, divId) {
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
   });
 
-  // Much cleaner, focused prompt
-  const systemPrompt = `You are an HTML optimization expert. Your task is to optimize HTML while maintaining identical visual rendering.
-
-RULES:
-1. Merge nested divs with identical positioning/dimensions
-2. Remove empty wrapper divs that only contain other divs
-3. Combine style properties using CSS shorthand
-4. Preserve ALL data-* attributes, IDs, and classes
-5. Keep all functional attributes
-6. Maintain pixel-perfect layout
-
-CRITICAL: Return ONLY the optimized HTML, no explanations or comments.`;
-
-  const userPrompt = `Optimize this HTML while keeping the exact same visual output:
-
-${html}`;
+  const prompt = `${OPTIMIZATION_PROMPT}\n${html}`;
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", 
+      model: "gpt-4o-mini",
       messages: [
         {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user", 
-          content: userPrompt
+          role: "user",
+          content: prompt
         }
       ],
-      temperature: 0,
-      max_tokens: 4000
+      temperature: 0.1,
+      max_tokens: 8192,
     });
 
     const optimizedHtml = response.choices[0].message.content.trim();
-    
+
     // Clean up any potential markdown formatting
     const cleanHtml = optimizedHtml
       .replace(/^```html\s*/i, '')
       .replace(/```\s*$/i, '')
       .trim();
-    
+
     return cleanHtml;
-    
+
   } catch (error) {
     console.error('OpenAI API error:', error);
     throw new Error(`OpenAI optimization failed: ${error.message}`);
