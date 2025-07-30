@@ -1,0 +1,166 @@
+{
+  "success": true,
+  "timestamp": "2025-07-30T03:12:48.162Z",
+  "sectionFiles": [
+    {
+      "index": 0,
+      "sectionId": "comp-lt8qhfae",
+      "htmlFile": "sections/section_0.html",
+      "computedFile": "sections/section_0_computed.json"
+    },
+    {
+      "index": 1,
+      "sectionId": "comp-lt8qhfaf",
+      "htmlFile": "sections/section_1.html",
+      "computedFile": "sections/section_1_computed.json"
+    },
+    {
+      "index": 2,
+      "sectionId": "comp-lt8qhfaf1",
+      "htmlFile": "sections/section_2.html",
+      "computedFile": "sections/section_2_computed.json"
+    },
+    {
+      "index": 3,
+      "sectionId": "comp-lt8qhfag",
+      "htmlFile": "sections/section_3.html",
+      "computedFile": "sections/section_3_computed.json"
+    },
+    {
+      "index": 4,
+      "sectionId": "comp-lt8qhfag1",
+      "htmlFile": "sections/section_4.html",
+      "computedFile": "sections/section_4_computed.json"
+    },
+    {
+      "index": 5,
+      "sectionId": "comp-lt8qhfah",
+      "htmlFile": "sections/section_5.html",
+      "computedFile": "sections/section_5_computed.json"
+    }
+  ],
+  "processedSections": [
+    {
+      "index": 0,
+      "sectionKey": "comp-lt8qhfae",
+      "files": {
+        "original": "sections/section_0.html",
+        "computed": "sections/section_0_computed.json",
+        "layoutInline": "layout_inlineStyles_0.html",
+        "bareMinimum": "bareminimum_section_0.html",
+        "widgets": "widgets_0.json",
+        "widgetsHtml": "widgets_extracted_0.html",
+        "final": null
+      },
+      "stats": {
+        "originalSize": 22037,
+        "finalSize": 35988,
+        "compressionRatio": "-63.3%",
+        "widgetsExtracted": 13
+      }
+    },
+    {
+      "index": 1,
+      "sectionKey": "comp-lt8qhfaf",
+      "files": {
+        "original": "sections/section_1.html",
+        "computed": "sections/section_1_computed.json",
+        "layoutInline": "layout_inlineStyles_1.html",
+        "bareMinimum": "bareminimum_section_1.html",
+        "widgets": "widgets_1.json",
+        "widgetsHtml": "widgets_extracted_1.html",
+        "final": null
+      },
+      "stats": {
+        "originalSize": 12521,
+        "finalSize": 26184,
+        "compressionRatio": "-109.1%",
+        "widgetsExtracted": 10
+      }
+    },
+    {
+      "index": 2,
+      "sectionKey": "comp-lt8qhfaf1",
+      "files": {
+        "original": "sections/section_2.html",
+        "computed": "sections/section_2_computed.json",
+        "layoutInline": "layout_inlineStyles_2.html",
+        "bareMinimum": "bareminimum_section_2.html",
+        "widgets": "widgets_2.json",
+        "widgetsHtml": "widgets_extracted_2.html",
+        "final": null
+      },
+      "stats": {
+        "originalSize": 19689,
+        "finalSize": 30539,
+        "compressionRatio": "-55.1%",
+        "widgetsExtracted": 16
+      }
+    },
+    {
+      "index": 3,
+      "sectionKey": "comp-lt8qhfag",
+      "files": {
+        "original": "sections/section_3.html",
+        "computed": "sections/section_3_computed.json",
+        "layoutInline": "layout_inlineStyles_3.html",
+        "bareMinimum": "bareminimum_section_3.html",
+        "widgets": "widgets_3.json",
+        "widgetsHtml": "widgets_extracted_3.html",
+        "final": null
+      },
+      "stats": {
+        "originalSize": 15125,
+        "finalSize": 25111,
+        "compressionRatio": "-66.0%",
+        "widgetsExtracted": 13
+      }
+    },
+    {
+      "index": 4,
+      "sectionKey": "comp-lt8qhfag1",
+      "files": {
+        "original": "sections/section_4.html",
+        "computed": "sections/section_4_computed.json",
+        "layoutInline": "layout_inlineStyles_4.html",
+        "bareMinimum": "bareminimum_section_4.html",
+        "widgets": "widgets_4.json",
+        "widgetsHtml": "widgets_extracted_4.html",
+        "final": null
+      },
+      "stats": {
+        "originalSize": 14224,
+        "finalSize": 22302,
+        "compressionRatio": "-56.8%",
+        "widgetsExtracted": 5
+      }
+    },
+    {
+      "index": 5,
+      "sectionKey": "comp-lt8qhfah",
+      "files": {
+        "original": "sections/section_5.html",
+        "computed": "sections/section_5_computed.json",
+        "layoutInline": "layout_inlineStyles_5.html",
+        "bareMinimum": "bareminimum_section_5.html",
+        "widgets": "widgets_5.json",
+        "widgetsHtml": "widgets_extracted_5.html",
+        "final": null
+      },
+      "stats": {
+        "originalSize": 77920,
+        "finalSize": 61528,
+        "compressionRatio": "21.0%",
+        "widgetsExtracted": 68
+      }
+    }
+  ],
+  "globalTemplates": [],
+  "summary": {
+    "totalSections": 6,
+    "successfulSections": 6,
+    "failedSections": 0,
+    "averageCompression": "-54.9%"
+  },
+  "message": "Successfully processed 6/6 sections"
+}
