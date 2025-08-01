@@ -9,6 +9,7 @@ const { z } = require('zod');
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const { JSDOM } = require('jsdom');
+const WorkerManager = require('./WorkerManager');
 require('dotenv').config();
 
 const execPromise = promisify(exec);
@@ -28,6 +29,10 @@ const WIDGET_ELEMENTS = [
     'video', 'span', 'button', 'a', 'text', 'wow-image', 'wix-video', 
     'wow-svg', 'wow-icon', 'wow-canvas'
 ];
+const outputDir = path.join(__dirname, 'output');
+// Usage
+const workerManager = new WorkerManager('/worker.js');
+await workerManager.init();
 
 class EnhancedHtmlStyleProcessor {
     constructor() {
@@ -431,8 +436,12 @@ async function extractWidgetsFromHtml(htmlContent, sectionIndex, outputDir) {
     }
 }
 
-async function extractAndSaveSections(rawHtmlContent, computedStyles, outputDir) {
+async function extractAndSaveSections(rawHtmlContent, computedStyles) {
+    try{
     await fs.mkdir(path.join(outputDir, 'sections'), { recursive: true });
+    } catch (error) {
+        console.error(`Error creating sections directory:`, error);
+    }
     const $ = cheerio.load(rawHtmlContent);
     const htmlSections = $('body > section, html > section').toArray();
     const sections = htmlSections.length > 0 
@@ -619,7 +628,7 @@ async function optimizeWithAI(html, id, customPrompt = null) {
           content: prompt
         }
       ],
-      temperature: 0.1,
+      temperature: 0,
       max_tokens: 12288,
     });
 
@@ -783,13 +792,49 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
       const startTime = Date.now();
       
       // Use specific top-most div optimization
-      const optimizedHtml = await Promise.race([
-        optimizeTopMostWithAI(html, id),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout after 180 seconds')), TIMEOUT)
-        )
-      ]);
-      
+    //   const optimizedHtml = await Promise.race([
+    //     optimizeTopMostWithAI(html, id),
+    //     new Promise((_, reject) => 
+    //       setTimeout(() => reject(new Error('Timeout after 180 seconds')), TIMEOUT)
+    //     )
+    //   ]);
+
+
+// Inject your business logic function as a string
+const businessLogic = `
+  const BGLAYERS_OPTIMIZATION_PROMPT = \`You are optimizing Wix bgLayers HTML...\`;
+  
+  async function optimizeBgLayersWithAI(html, id) {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': \`Bearer \${process.env.OPENAI_API_KEY}\`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{
+          role: "user",
+          content: \`\${BGLAYERS_OPTIMIZATION_PROMPT}\\n\${html}\`
+        }],
+        temperature: 0,
+        max_tokens: 12288
+      })
+    });
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim()
+      .replace(/^\`\`\`html\\s*/i, '')
+      .replace(/\`\`\`\\s*$/i, '')
+      .trim();
+  }
+`;
+
+workerManager.worker.postMessage({ businessLogic });
+
+// Use it
+const optimizedHtml = await workerManager.process({ html, id });
+
       const duration = Date.now() - startTime;
       console.log(`   ⏱️  Completed in ${duration}ms`);
       
@@ -1233,10 +1278,10 @@ async function processSectionRecursive(sectionIndex, sectionFiles, outputDir, gl
     }
 }
 
-async function processAllSections(rawHtmlContent, computedStyles, outputDir) {
+async function processAllSections(rawHtmlContent, computedStyles) {
     allSections = [];
     browserProcess = null;
-    const sectionFiles = await extractAndSaveSections(rawHtmlContent, computedStyles, outputDir);
+    const sectionFiles = await extractAndSaveSections(rawHtmlContent, computedStyles);
     return processSectionRecursive(0, sectionFiles, outputDir, [], []);
 }
 async function updateBrowserDisplay(outputDir, shouldOpenBrowser = false) {
@@ -1333,7 +1378,6 @@ async function updateBrowserDisplay(outputDir, shouldOpenBrowser = false) {
 
 app.post('/api/migrate', async (req, res) => {
     try {
-        const outputDir = path.join(__dirname, 'output');
         try { await fs.mkdir(outputDir, { recursive: true }); } catch (err) {}
         const computedStylesPath = path.join(__dirname, 'computed-styles.json');
         const rawHtmlPath = path.join(__dirname, 'raw.html');
@@ -1341,15 +1385,12 @@ app.post('/api/migrate', async (req, res) => {
         try {
             const computedStylesContent = await fs.readFile(computedStylesPath, 'utf8');
             computedStyles = JSON.parse(computedStylesContent);
-        } catch (error) {
-            return res.status(400).json({ error: 'Could not load computed-styles.json', message: error.message });
-        }
-        try {
             rawHtmlContent = await fs.readFile(rawHtmlPath, 'utf8');
+
         } catch (error) {
-            return res.status(400).json({ error: 'Could not load raw.html', message: error.message });
+            return res.status(400).json({ error: 'Could not load computed-styles.json or RawHTML', message: error.message });
         }
-        const results = await processAllSections(rawHtmlContent, computedStyles, outputDir);
+        const results = await processAllSections(rawHtmlContent, computedStyles);
         const migrationReport = {
             success: true,
             timestamp: new Date().toISOString(),
