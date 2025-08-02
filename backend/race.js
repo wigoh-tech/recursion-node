@@ -637,208 +637,6 @@ if (!isMainThread) {
   return;
 }
 
-// async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
-//   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
-//   console.log('='.repeat(60));
-  
-//   // Step 1: Locate widgets-extracted HTML
-//   const widgetsHtmlPath = path.join(outputDir, `widgets_extracted_${sectionIndex}.html`);
-//   if (!await fs.access(widgetsHtmlPath).then(() => true).catch(() => false)) {
-//     throw new Error(`Widgets-extracted HTML file not found at ${widgetsHtmlPath}`);
-//   }
-
-//   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
-//   console.log(`✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
-
-//   // Step 2: Process bgLayers divs
-//   console.log('\n🎨 Processing bgLayers divs...');
-//   const $ = cheerio.load(widgetsHtml);
-//   const bgLayerDivs = [];
-  
-//   $('div[id^="bgLayers"]').each((index, element) => {
-//     const $element = $(element);
-//     bgLayerDivs.push({
-//       id: $element.attr('id'),
-//       element: element,
-//       html: $.html($element)
-//     });
-//   });
-
-//   console.log(`Found ${bgLayerDivs.length} bgLayers divs`);
-//   const bgTemplates = {};
-
-//   // Process bgLayers concurrently with worker threads
-//   await Promise.all(bgLayerDivs.map(async (divData, i) => {
-//     console.log(`\n🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${divData.id}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: divData.id,
-//           promptType: 'bgLayers'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${divData.id}`);
-//         const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-//         bgTemplates[`{{${bgKey}}}`] = '';
-//         $(divData.element).replaceWith(`{{${bgKey}}}`);
-//         resolve();
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-        
-//         if (message.success) {
-//           bgTemplates[`{{${bgKey}}}`] = message.optimizedHtml;
-//           $(divData.element).replaceWith(`{{${bgKey}}}`);
-//           console.log(`✅ Optimized ${divData.id} (${message.optimizedHtml.length} bytes)`);
-//         } else {
-//           bgTemplates[`{{${bgKey}}}`] = '';
-//           $(divData.element).replaceWith(`{{${bgKey}}}`);
-//           console.error(`❌ Failed ${divData.id}: ${message.error}`);
-//         }
-//         resolve();
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//         const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-//         bgTemplates[`{{${bgKey}}}`] = '';
-//         $(divData.element).replaceWith(`{{${bgKey}}}`);
-//         resolve();
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // [Rest of the function remains the same...]
-//   // Continue with saving bgLayers results
-//   const bgJsonFile = `bg_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, bgJsonFile), JSON.stringify(bgTemplates, null, 2));
-  
-//   const htmlWithBgPlaceholders = $.html();
-//   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bgPlaceholderHtmlFile), htmlWithBgPlaceholders);
-
-//   // Step 3: Process top-most divs
-//   console.log('\n📊 Processing top-most divs...');
-//   const $saved = cheerio.load(htmlWithBgPlaceholders);
-//   const topMostDivs = [];
-  
-//   $saved('div[id]').each((index, element) => {
-//     const $element = $saved(element);
-//     const id = $element.attr('id');
-    
-//     if (id && !id.startsWith('bgLayers') && $element.parents('div[id]').length === 0) {
-//       topMostDivs.push({
-//         id: id,
-//         element: element,
-//         html: $saved.html($element)
-//       });
-//     }
-//   });
-
-//   console.log(`Found ${topMostDivs.length} top-most divs`);
-//   const componentTemplates = {};
-
-//   // Process top-most divs concurrently with worker threads
-//   await Promise.all(topMostDivs.map(async (divData, i) => {
-//     console.log(`\n🔧 Processing top-most div ${i + 1}/${topMostDivs.length}: ${divData.id}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: divData.id,
-//           promptType: 'topMost'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${divData.id}`);
-//         const templateKey = `template-${String(2000 + i + 1).padStart(4, '0')}`;
-//         componentTemplates[`{{${templateKey}}}`] = '';
-//         $saved(divData.element).replaceWith(`{{${templateKey}}}`);
-//         resolve();
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         const templateKey = `template-${String(2000 + i + 1).padStart(4, '0')}`;
-        
-//         if (message.success) {
-//           componentTemplates[`{{${templateKey}}}`] = message.optimizedHtml;
-//           $saved(divData.element).replaceWith(`{{${templateKey}}}`);
-//           console.log(`✅ Optimized ${divData.id} (${message.optimizedHtml.length} bytes)`);
-//         } else {
-//           componentTemplates[`{{${templateKey}}}`] = '';
-//           $saved(divData.element).replaceWith(`{{${templateKey}}}`);
-//           console.error(`❌ Failed ${divData.id}: ${message.error}`);
-//         }
-//         resolve();
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//         const templateKey = `template-${String(2000 + i + 1).padStart(4, '0')}`;
-//         componentTemplates[`{{${templateKey}}}`] = '';
-//         $saved(divData.element).replaceWith(`{{${templateKey}}}`);
-//         resolve();
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Step 4: Save final output
-//   const finalBareHtml = $saved.html();
-//   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bareMinimumFile), finalBareHtml);
-  
-//   const componentsJsonFile = `bareminimum_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, componentsJsonFile), JSON.stringify(componentTemplates, null, 2));
-
-//   console.log('\n🏁 Bare minimum HTML generation complete!');
-//   console.log('='.repeat(60));
-
-//   return {
-//     bareHtml: finalBareHtml,
-//     bareMinimumFile,
-//     bgJsonFile,
-//     componentsJsonFile,
-//     bgPlaceholderHtmlFile,
-//     bgTemplates,
-//     componentTemplates
-//   };
-// }
-
 async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
   console.log('='.repeat(60));
@@ -1068,7 +866,6 @@ module.exports = {
   BGLAYERS_OPTIMIZATION_PROMPT,
   TOPMOST_OPTIMIZATION_PROMPT
 };
-
 class WebsiteBuilder {
     constructor(outputDir) {
         this.outputDir = outputDir;
@@ -1320,8 +1117,6 @@ class WebsiteBuilder {
     }
 }
 
-const completedSections = new Map();
-
 async function assembleFinalWebsite(sectionIndex, outputDir) {
     console.log(`   🏗️ Step 4: Processing section ${sectionIndex}...`);
     
@@ -1440,68 +1235,182 @@ async function processAllSectionsConcurrently(sectionFiles, outputDir, globalTem
         }
     };
 }
-// Update your processAllSections function to use the concurrent version
+
+const completedSections = new Map();
+
 // async function processAllSections(rawHtmlContent, computedStyles, outputDir) {
-//     allSections = [];
-//     completedSections.clear();
+//     // Initialize with empty array instead of clearing
+//     allSections = allSections || [];
+//        if (completedSections && typeof completedSections.clear === 'function') {
+//         completedSections.clear();
+//     }
 //     browserProcess = null;
+    
 //     const sectionFiles = await extractAndSaveSections(rawHtmlContent, computedStyles, outputDir);
-    
-//     // Process all sections concurrently but track completion order
-//     const processingPromises = sectionFiles.map(section => 
-//         processAllSectionsConcurrently(section.index, sectionFiles, outputDir, [], [])
-//     );
-    
-//     const results = await Promise.all(processingPromises);
-    
+//     if (!Array.isArray(sectionFiles)) {
+//         throw new Error('Expected sectionFiles to be an array');
+//     }
+
+//     // Process sections sequentially to ensure proper ordering
+//     const results = [];
+//     for (const section of sectionFiles) {
+//         try {
+//             const result = await processSingleSection(section, outputDir);
+//             results.push(result);
+            
+//             // Update display after each section
+//             await updateBrowserDisplay(outputDir, results.length === 1);
+//         } catch (error) {
+//             results.push({
+//                 index: section.index,
+//                 error: error.message,
+//                 failed: true
+//             });
+//         }
+//     }
+
 //     // Final check in case any sections were missed
 //     await checkAndGenerateFinalOutput(outputDir);
     
 //     return {
 //         sectionFiles,
-//         processedSections: Array.from(completedSections.values()).sort((a,b) => a.index - b.index),
+//         processedSections: results,
 //         summary: {
 //             totalSections: sectionFiles.length,
-//             successfulSections: Array.from(completedSections.values()).filter(s => !s.failed).length,
-//             failedSections: Array.from(completedSections.values()).filter(s => s.failed).length
+//             successfulSections: results.filter(s => !s.failed).length,
+//             failedSections: results.filter(s => s.failed).length
 //         }
 //     };
 // }
-
 async function processAllSections(rawHtmlContent, computedStyles, outputDir) {
-    allSections = [];
-    completedSections.clear();
+    // Initialize with empty array instead of clearing
+    allSections = allSections || [];
+    if (completedSections && typeof completedSections.clear === 'function') {
+        completedSections.clear();
+    }
     browserProcess = null;
     
-    // Ensure sectionFiles is always an array
     const sectionFiles = await extractAndSaveSections(rawHtmlContent, computedStyles, outputDir);
     if (!Array.isArray(sectionFiles)) {
         throw new Error('Expected sectionFiles to be an array');
     }
 
-    // Process all sections concurrently but track completion order
-    const processingPromises = sectionFiles.map(section => {
-        // Ensure each section has the required properties
-        if (!section || typeof section !== 'object') {
-            throw new Error('Invalid section data');
-        }
-        return processSingleSection(section, outputDir);
-    });
+    // Process all sections concurrently
+    const processingPromises = sectionFiles.map(section => 
+        processSingleSection(section, outputDir)
+    );
     
+    // Wait for all sections to complete (but don't return yet)
     const results = await Promise.all(processingPromises);
-    
-    // Final check in case any sections were missed
-    await checkAndGenerateFinalOutput(outputDir);
+
+    // Now ensure sections are processed in order
+    const orderedSections = [];
+    for (let i = 0; i < sectionFiles.length; i++) {
+        // Find the result for this index (since they may complete out of order)
+        const result = results.find(r => r.index === i);
+        if (result) {
+            orderedSections.push(result);
+        }
+    }
+
+    // Generate final output with sections in correct order
+    await generateOrderedFinalOutput(orderedSections, outputDir);
     
     return {
         sectionFiles,
-        processedSections: Array.from(completedSections.values()).sort((a,b) => a.index - b.index),
+        processedSections: orderedSections,
         summary: {
             totalSections: sectionFiles.length,
-            successfulSections: Array.from(completedSections.values()).filter(s => !s.failed).length,
-            failedSections: Array.from(completedSections.values()).filter(s => s.failed).length
+            successfulSections: orderedSections.filter(s => !s.failed).length,
+            failedSections: orderedSections.filter(s => s.failed).length
         }
     };
+}
+async function generateOrderedFinalOutput(orderedSections, outputDir) {
+    // Filter out failed sections
+    const successfulSections = orderedSections.filter(s => !s.failed && s.html);
+    
+    if (successfulSections.length === 0) {
+        console.log('No successful sections to generate final output');
+        return;
+    }
+
+    // Create final HTML with proper hierarchy
+    const finalHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Website</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    ${successfulSections.map(section => section.html).join('\n')}
+</body>
+</html>`;
+    
+    // Save final output
+    const finalOutputPath = path.join(outputDir, 'final_website.html');
+    await fs.writeFile(finalOutputPath, finalHtml);
+    console.log(`🌐 Generated final website with ${successfulSections.length} sections in correct order`);
+    
+    // Update browser display
+    await updateBrowserDisplay(outputDir, true);
+}
+
+// Modified processSingleSection to handle concurrency better
+async function processSingleSection(section, outputDir) {
+    try {
+        const sectionHtml = await fs.readFile(path.join(outputDir, section.htmlFile), 'utf8');
+        const computedData = JSON.parse(await fs.readFile(path.join(outputDir, section.computedFile), 'utf8'));
+        const styleProcessor = new EnhancedHtmlStyleProcessor();
+        
+        // Process inline layout styles
+        const step1Result = await styleProcessor.processHtml(sectionHtml, computedData, outputDir, section.index);
+        
+        // Extract widgets
+        const step2Result = await extractWidgetsFromHtml(step1Result.styledHtml, section.index, outputDir);
+        
+        // Generate bare minimum HTML
+        const step3Result = await generateBareMinimumHtml(section.index, step2Result.modifiedHtml, outputDir);
+        
+        // Assemble final website section
+        const builder = new WebsiteBuilder(outputDir);
+        builder.templateFile = path.join(outputDir, `bareminimum_section_${section.index}.html`);
+        builder.data1File = path.join(outputDir, `bg_${section.index}.json`);
+        builder.data2File = path.join(outputDir, `bareminimum_${section.index}.json`);
+        builder.data3File = path.join(outputDir, `widgets_${section.index}.json`);
+        
+        const finalHtml = await builder.buildWebsite();
+        
+        // Return the processed section data
+        return {
+            index: section.index,
+            html: finalHtml,
+            completed: true,
+            widgets: step2Result.widgets || {},
+            files: {
+                original: section.htmlFile,
+                computed: section.computedFile,
+                layoutInline: step1Result.layoutInlineFile,
+                bareMinimum: step3Result.bareMinimumFile,
+                widgets: step2Result.widgetsFile,
+                widgetsHtml: step2Result.htmlOutputFile
+            },
+            stats: {
+                originalSize: sectionHtml.length,
+                finalSize: finalHtml.length,
+                compressionRatio: ((sectionHtml.length - finalHtml.length) / sectionHtml.length * 100).toFixed(1) + '%',
+                widgetsExtracted: step2Result.widgets ? Object.keys(step2Result.widgets).length : 0
+            }
+        };
+    } catch (error) {
+        console.error(`❌ Section ${section.index} processing failed:`, error.message);
+        return {
+            index: section.index,
+            error: error.message,
+            failed: true
+        };
+    }
 }
 
 async function processSingleSection(section, outputDir) {
@@ -1510,29 +1419,38 @@ async function processSingleSection(section, outputDir) {
         const computedData = JSON.parse(await fs.readFile(path.join(outputDir, section.computedFile), 'utf8'));
         const styleProcessor = new EnhancedHtmlStyleProcessor();
         
-        // Step 1: Process inline layout styles
+        // Process inline layout styles
         const step1Result = await styleProcessor.processHtml(sectionHtml, computedData, outputDir, section.index);
         
-        // Step 2: Extract widgets from the HTML
+        // Extract widgets
         const step2Result = await extractWidgetsFromHtml(step1Result.styledHtml, section.index, outputDir);
         
-        // Step 3: Generate bare minimum HTML
+        // Generate bare minimum HTML
         const step3Result = await generateBareMinimumHtml(section.index, step2Result.modifiedHtml, outputDir);
         
-        // Step 4: Assemble final website
+        // Assemble final website
         const step4Result = await assembleFinalWebsite(section.index, outputDir);
         
-        return {
+        // Update global state
+        const sectionData = {
             index: section.index,
-            success: true,
-            html: step4Result.finalHtml
+            html: step4Result.finalHtml,
+            completed: true,
+            widgets: step2Result.widgets || {}
         };
+        
+        allSections.push(sectionData);
+        completedSections.set(section.index, sectionData);
+        
+        return sectionData;
     } catch (error) {
-        return {
+        const failedSection = {
             index: section.index,
-            success: false,
-            error: error.message
+            error: error.message,
+            failed: true
         };
+        completedSections.set(section.index, failedSection);
+        throw error;
     }
 }
 async function checkAndGenerateFinalOutput(outputDir) {
@@ -1572,97 +1490,116 @@ async function checkAndGenerateFinalOutput(outputDir) {
         await updateBrowserDisplay(outputDir, nextExpectedIndex === 1);
     }
 }
+
+// async function updateBrowserDisplay(outputDir, shouldOpenBrowser = false) {
+//     if (completedSections.size === 0) {
+//         console.log('No completed sections to display');
+//         return;
+//     }
+
+//     // Get sections in order
+//     const sectionsToDisplay = Array.from(completedSections.values())
+//         .sort((a, b) => a.index - b.index)
+//         .filter(section => !section.failed && section.html);
+
+//     if (sectionsToDisplay.length === 0) {
+//         console.log('No valid sections to display');
+//         return;
+//     }
+
+//     // Create HTML
+//     const completeHtml = `
+// <!DOCTYPE html>
+// <html>
+// <head>
+//     <title>Migrated Website Sections</title>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <style>
+//         * { margin: 0; padding: 0; box-sizing: border-box; }
+//         html, body { 
+//             width: 100%; 
+//             height: 100%; 
+//             overflow-x: auto; 
+//         }
+//     </style>
+// </head>
+// <body>
+//     ${sectionsToDisplay.map(section => section.html).join('\n')}
+// </body>
+// </html>
+//     `;
+
+//     // Save to file
+//     const tempFile = path.join(outputDir, 'all_sections.html');
+//     await fs.writeFile(tempFile, completeHtml);
+    
+//     const fullPath = path.resolve(tempFile);
+//     const fileUrl = `file://${fullPath}`;
+    
+//     if (shouldOpenBrowser || !browserProcess) {
+//         const platform = process.platform;
+//         let command;
+        
+//         if (platform === 'win32') {
+//             command = `start "" "${fileUrl}"`;
+//         } else if (platform === 'darwin') {
+//             command = `open "${fileUrl}"`;
+//         } else {
+//             command = `xdg-open "${fileUrl}"`;
+//         }
+        
+//         try {
+//             browserProcess = await execPromise(command);
+//             console.log(`✅ Browser opened with ${sectionsToDisplay.length} sections`);
+//         } catch (error) {
+//             console.log(`✅ Sections available at: ${fileUrl}`);
+//         }
+//     } else {
+//         console.log(`✅ Updated display with ${sectionsToDisplay.length} sections`);
+//     }
+// }
 async function updateBrowserDisplay(outputDir, shouldOpenBrowser = false) {
-    if (allSections.length === 0) {
-        console.log('No sections to display');
-        return;
-    }
+    try {
+        const finalHtmlPath = path.join(outputDir, 'final_website.html');
+        if (!await fs.access(finalHtmlPath).then(() => true).catch(() => false)) {
+            console.log('Final HTML not ready for display');
+            return;
+        }
 
-    // Use a Set to track unique section indices and prevent duplicates
-    const uniqueSections = new Map();
-    
-    // Filter out duplicates based on section index
-    allSections.forEach(section => {
-        if (!uniqueSections.has(section.index)) {
-            uniqueSections.set(section.index, section);
-        } else {
-            // Keep the most recent version (assuming later ones are updates)
-            const existing = uniqueSections.get(section.index);
-            if (section.completed && !existing.completed) {
-                uniqueSections.set(section.index, section);
+        const finalHtml = await fs.readFile(finalHtmlPath, 'utf8');
+        const tempFile = path.join(outputDir, 'all_sections.html');
+        await fs.writeFile(tempFile, finalHtml);
+        
+        const fullPath = path.resolve(tempFile);
+        const fileUrl = `file://${fullPath}`;
+        
+        if (shouldOpenBrowser || !browserProcess) {
+            const platform = process.platform;
+            let command;
+            
+            if (platform === 'win32') {
+                command = `start "" "${fileUrl}"`;
+            } else if (platform === 'darwin') {
+                command = `open "${fileUrl}"`;
+            } else {
+                command = `xdg-open "${fileUrl}"`;
             }
-        }
-    });
-
-    // Convert back to array and sort by index for consistent ordering
-    const sectionsToDisplay = Array.from(uniqueSections.values())
-        .sort((a, b) => a.index - b.index);
-
-    // Create HTML with unique sections only - no containers, full screen optimization
-    const completeHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Migrated Website Sections</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { 
-            width: 100%; 
-            height: 100%; 
-            overflow-x: auto; 
-        }
-    </style>
-    <script>
-        // Auto-refresh every 10 seconds
-        setTimeout(() => {
-            window.location.reload();
-        }, 10000);
-    </script>
-</head>
-<body>
-    ${sectionsToDisplay.map(section => section.html).join('\n')}
-</body>
-</html>
-    `;
-
-    // Save to temporary file with timestamp to help with caching issues
-    const tempFile = path.join(outputDir, 'all_sections.html');
-    await fs.writeFile(tempFile, completeHtml);
-    
-    const fullPath = path.resolve(tempFile);
-    const fileUrl = `file://${fullPath}?t=${Date.now()}`; // Add timestamp to prevent caching
-    
-    if (shouldOpenBrowser || !browserProcess) {
-        // Open browser for first section or if not already open
-        const platform = process.platform;
-        let command;
-        
-        if (platform === 'win32') {
-            command = `start "" "${fileUrl}"`;
-        } else if (platform === 'darwin') {
-            command = `open "${fileUrl}"`;
+            
+            try {
+                browserProcess = await execPromise(command);
+                console.log('✅ Browser opened with final website');
+            } catch (error) {
+                console.log(`✅ Final website available at: ${fileUrl}`);
+            }
         } else {
-            command = `xdg-open "${fileUrl}"`;
+            console.log('✅ Updated browser display with final website');
         }
-        
-        try {
-            browserProcess = await execPromise(command);
-            console.log(`✅ Browser opened with ${sectionsToDisplay.length} unique HTML sections (full screen)`);
-        } catch (error) {
-            console.log(`✅ Sections available at: ${fileUrl}`);
-            console.log(`ℹ️ Could not automatically open browser: ${error.message}`);
-        }
-    } else {
-        console.log(`✅ HTML updated with ${sectionsToDisplay.length} unique sections (auto-refresh in 10s)`);
-    }
-    
-    // Debug logging to help identify duplication issues
-    if (allSections.length !== sectionsToDisplay.length) {
-        console.log(`ℹ️ Filtered ${allSections.length - sectionsToDisplay.length} duplicate sections`);
+    } catch (error) {
+        console.error('Error updating browser display:', error);
     }
 }
+
 app.post('/api/migrate', async (req, res) => {
     try {
         const outputDir = path.join(__dirname, 'output');

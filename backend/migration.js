@@ -2219,7 +2219,7 @@ async function optimizeWithAI(html, id, customPrompt = null) {
           content: prompt
         }
       ],
-      temperature: 0.1,
+      temperature: 0.3,
       max_tokens: 12288,
     });
 
