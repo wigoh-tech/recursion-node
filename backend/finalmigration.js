@@ -32,36 +32,50 @@ const WIDGET_ELEMENTS = [
 ];
 
 const BGLAYERS_OPTIMIZATION_PROMPT = `
-You are optimizing Wix bgLayers HTML. Your goal is to convert 3 divs into 1 single div while STRICTLY preserving ALL visual properties.
+🚨 CRITICAL: You are optimizing Wix bgLayers HTML. Your goal is to convert 3 divs into 1 single div while ABSOLUTELY preserving ALL visual properties, especially BACKGROUND COLORS.
 
-CRITICAL RULES:
+** Background colors are mandotory for this bgLayer div, if you cannot add background colors for the div please make sure you can one nestoring div that has the background colors. 
+
+🎨 BACKGROUND COLOR PRESERVATION IS MANDATORY - ANY LOSS WILL BREAK THE DESIGN 🎨
+
+CRITICAL RULES (NEVER VIOLATE):
 1. OUTPUT ONLY A SINGLE DIV - Never output multiple divs
-2. PRESERVE ALL BACKGROUND PROPERTIES: background-color, background-image, background-size, background-position, background-repeat
-3. PRESERVE ALL POSITIONING: position, top, left, right, bottom, z-index, transform
-4. PRESERVE ALL DIMENSIONS: width, height, min-width, min-height, max-width, max-height
-5. PRESERVE ALL VISUAL EFFECTS: opacity, overflow, mask-position, mask-repeat, mask-size, filter
+2. 🎨 PRESERVE ALL BACKGROUND PROPERTIES EXACTLY: background-color, backgroundColor, background-image, backgroundImage, background-size, background-position, background-repeat, background
+3. 📐 PRESERVE ALL POSITIONING EXACTLY: position, top, left, right, bottom, z-index, zIndex, transform
+4. 📏 PRESERVE ALL DIMENSIONS EXACTLY: width, height, min-width, min-height, max-width, max-height
+5. ✨ PRESERVE ALL VISUAL EFFECTS EXACTLY: opacity, overflow, mask-position, mask-repeat, mask-size, filter, box-shadow, border-radius
 6. Merge ALL classes from all child divs into the main div
 7. Merge ALL styles from all child divs into the main div  
 8. If bgMedia is EMPTY or has no {{widget-}} content, completely remove it
 9. If bgMedia contains {{widget-}} content, put it directly inside the main div
 10. Use CSS shorthand only when it doesn't lose any properties: position:absolute;top:0;bottom:0;left:0;right:0
 
+🎨 MANDATORY BACKGROUND PRESERVATION RULES:
+- background-color: rgb(r,g,b) → MUST become background-color:rgb(r,g,b) in output
+- background-color: #hexcode → MUST become background-color:#hexcode in output  
+- backgroundColor: value → MUST become background-color:value in output
+- background-image: url() → MUST become background-image:url() in output
+- background: gradient → MUST become background:gradient in output
+- ANY background property → MUST be preserved with IDENTICAL value
+
 MANDATORY PROPERTY PRESERVATION:
-- background-color: MUST be preserved exactly as rgb(r,g,b) or hex
-- background-image: MUST be preserved with full URL and properties
-- position properties: MUST be preserved (absolute, relative, etc.)
-- dimensions: MUST match original height/width exactly
-- margin/padding: MUST be preserved if present
-- overflow: MUST be preserved (hidden, auto, scroll)
-- opacity: MUST be preserved
-- transform: MUST be preserved
-- z-index: MUST be preserved
+- 🎨 background-color: MUST be preserved exactly as rgb(r,g,b), rgba(r,g,b,a), or #hex
+- 🖼️ background-image: MUST be preserved with full URL and properties
+- 📐 position properties: MUST be preserved (absolute, relative, etc.)
+- 📏 dimensions: MUST match original height/width exactly
+- 📦 margin/padding: MUST be preserved if present
+- 🔧 overflow: MUST be preserved (hidden, auto, scroll)
+- ✨ opacity: MUST be preserved
+- 🔄 transform: MUST be preserved
+- 🏗️ z-index: MUST be preserved
 
 TRANSFORMATION RULES:
 - 3 nested divs → 1 single div
 - All classes merged → class="MW5IWV LWbAav Kv1aVt VgO9Yg"  
 - All styles merged → combined in style attribute
 - Widget content (if any) → directly inside the single div
+
+🎨 BACKGROUND COLOR EXAMPLES (PRESERVE EXACTLY):
 
 EXAMPLE 1 - Empty bgMedia (3 divs → 1 div):
 INPUT:
@@ -73,7 +87,7 @@ INPUT:
 OUTPUT:
 <div id="bgLayers_comp-lt8qhfaf" data-hook="bgLayers" data-motion-part="BG_LAYER comp-lt8qhfaf" data-testid="colorUnderlay" class="MW5IZ LWbAav Kv1aVt VgO9Yg" style="position:absolute;top:0;bottom:0;left:0;right:0;height:421px"></div>
 
-EXAMPLE 2 - With background color (3 divs → 1 div):
+EXAMPLE 2 - With background color (3 divs → 1 div) - CRITICAL BACKGROUND PRESERVATION:
 INPUT:
 <div id="bgLayers_comp-irqduxf8" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxf8" class="MW5IWV" style="bottom: 0; height: 881px; left: 0; position: absolute; right: 0; top: 0; overflow: hidden;">
   <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="background-color: rgb(6, 21, 81); bottom: 0; height: 881px; left: 0; position: absolute; right: 0; top: 0;"></div>
@@ -83,7 +97,37 @@ INPUT:
 OUTPUT:
 <div id="bgLayers_comp-irqduxf8" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxf8" data-testid="colorUnderlay" class="MW5IWV LWbAav Kv1aVt VgO9Yg" style="position:absolute;top:0;bottom:0;left:0;right:0;height:881px;background-color:rgb(6,21,81);overflow:hidden"></div>
 
-EXAMPLE 3 - With widget content (3 divs → 1 div with content):
+EXAMPLE 3 - With hex background color:
+INPUT:
+<div id="bgLayers_comp-xyz123" class="MW5IWV" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; height: 500px;">
+  <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="background-color: #ff6b6b; position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></div>
+  <div id="bgMedia_comp-xyz123" class="VgO9Yg" style="height: 500px;"></div>
+</div>
+
+OUTPUT:
+<div id="bgLayers_comp-xyz123" data-testid="colorUnderlay" class="MW5IWV LWbAav Kv1aVt VgO9Yg" style="position:absolute;top:0;bottom:0;left:0;right:0;height:500px;background-color:#ff6b6b"></div>
+
+EXAMPLE 4 - With rgba background color:
+INPUT:
+<div id="bgLayers_comp-abc456" class="MW5IWV" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; height: 300px;">
+  <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="background-color: rgba(255, 107, 107, 0.8); position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></div>
+  <div id="bgMedia_comp-abc456" class="VgO9Yg" style="height: 300px;"></div>
+</div>
+
+OUTPUT:
+<div id="bgLayers_comp-abc456" data-testid="colorUnderlay" class="MW5IWV LWbAav Kv1aVt VgO9Yg" style="position:absolute;top:0;bottom:0;left:0;right:0;height:300px;background-color:rgba(255,107,107,0.8)"></div>
+
+EXAMPLE 5 - With background gradient:
+INPUT:
+<div id="bgLayers_comp-grad789" class="MW5IWV" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; height: 400px;">
+  <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></div>
+  <div id="bgMedia_comp-grad789" class="VgO9Yg" style="height: 400px;"></div>
+</div>
+
+OUTPUT:
+<div id="bgLayers_comp-grad789" data-testid="colorUnderlay" class="MW5IWV LWbAav Kv1aVt VgO9Yg" style="position:absolute;top:0;bottom:0;left:0;right:0;height:400px;background:linear-gradient(45deg,#ff6b6b,#4ecdc4)"></div>
+
+EXAMPLE 6 - With widget content (3 divs → 1 div with content):
 INPUT:
 <div id="bgLayers_comp-irqduxf8" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxf8" class="MW5IWV" style="bottom: 0; height: 881px; left: 0; position: absolute; right: 0; top: 0; overflow: hidden;">
   <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="background-color: rgb(6, 21, 81); bottom: 0; height: 881px; left: 0; position: absolute; right: 0; top: 0;"></div>
@@ -93,7 +137,33 @@ INPUT:
 OUTPUT:
 <div id="bgLayers_comp-irqduxf8" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxf8" data-motion-part="BG_MEDIA comp-irqduxf8" data-testid="colorUnderlay" class="MW5IWV LWbAav Kv1aVt VgO9Yg" style="position:absolute;top:0;bottom:0;left:0;right:0;height:881px;background-color:rgb(6,21,81);overflow:hidden;margin-top:-100px">{{widget-1}}</div>
 
-The output must render PIXEL-PERFECT identical to the input.
+🚨 CRITICAL VALIDATION BEFORE OUTPUT:
+1. Does input have background-color? → Output MUST have background-color with IDENTICAL value
+2. Does input have background-image? → Output MUST have background-image with IDENTICAL value
+3. Does input have background gradient? → Output MUST have background with IDENTICAL gradient
+4. Does input have positioning? → Output MUST have IDENTICAL positioning
+5. Does input have dimensions? → Output MUST have IDENTICAL dimensions
+
+❌ NEVER DO:
+- Remove background-color properties
+- Change rgb(6,21,81) to any other format
+- Remove background-image URLs
+- Change gradient values
+- Remove positioning properties
+- Change dimension values
+- Output multiple divs
+
+✅ ALWAYS DO:
+- Preserve background-color: rgb(6,21,81) exactly as background-color:rgb(6,21,81)
+- Preserve background-color: #ff6b6b exactly as background-color:#ff6b6b
+- Preserve background-color: rgba(255,107,107,0.8) exactly as background-color:rgba(255,107,107,0.8)
+- Preserve all positioning: position:absolute;top:0;bottom:0;left:0;right:0
+- Preserve all dimensions: height:881px exactly
+- Merge all classes: class="MW5IWV LWbAav Kv1aVt VgO9Yg"
+
+The output must render PIXEL-PERFECT identical to the input with ZERO visual changes.
+
+🎨 IF INPUT HAS ANY BACKGROUND COLOR/IMAGE → OUTPUT MUST HAVE IDENTICAL BACKGROUND COLOR/IMAGE 🎨
 
 OUTPUT ONLY THE OPTIMIZED HTML:
 `;
@@ -160,720 +230,6 @@ The output must be VISUALLY IDENTICAL. Any layout shift is forbidden.
 
 HTML TO OPTIMIZE:
 `;
-
-// ===== ZOD VALIDATION SCHEMAS =====
-// const CSSPositionSchema = z.object({
-//   position: z.enum(['static', 'relative', 'absolute', 'fixed', 'sticky']).optional(),
-//   top: z.string().optional(),
-//   right: z.string().optional(),
-//   bottom: z.string().optional(),
-//   left: z.string().optional(),
-//   zIndex: z.union([z.string(), z.number()]).optional()
-// });
-
-// const CSSBackgroundSchema = z.object({
-//   backgroundColor: z.string().optional(),
-//   backgroundImage: z.string().optional(),
-//   backgroundSize: z.string().optional(),
-//   backgroundPosition: z.string().optional(),
-//   backgroundRepeat: z.string().optional(),
-//   backgroundAttachment: z.string().optional(),
-//   backgroundClip: z.string().optional(),
-//   backgroundOrigin: z.string().optional(),
-//   background: z.string().optional()
-// });
-
-// const CSSFlexSchema = z.object({
-//   display: z.string().optional(),
-//   flexDirection: z.string().optional(),
-//   flexWrap: z.string().optional(),
-//   flexFlow: z.string().optional(),
-//   justifyContent: z.string().optional(),
-//   alignItems: z.string().optional(),
-//   alignContent: z.string().optional(),
-//   flex: z.string().optional(),
-//   flexGrow: z.union([z.string(), z.number()]).optional(),
-//   flexShrink: z.union([z.string(), z.number()]).optional(),
-//   flexBasis: z.string().optional(),
-//   alignSelf: z.string().optional(),
-//   order: z.union([z.string(), z.number()]).optional(),
-//   gap: z.string().optional(),
-//   rowGap: z.string().optional(),
-//   columnGap: z.string().optional()
-// });
-
-// const CSSGridSchema = z.object({
-//   display: z.string().optional(),
-//   gridTemplateColumns: z.string().optional(),
-//   gridTemplateRows: z.string().optional(),
-//   gridTemplateAreas: z.string().optional(),
-//   gridTemplate: z.string().optional(),
-//   gridColumnGap: z.string().optional(),
-//   gridRowGap: z.string().optional(),
-//   gridGap: z.string().optional(),
-//   gap: z.string().optional(),
-//   justifyItems: z.string().optional(),
-//   alignItems: z.string().optional(),
-//   placeItems: z.string().optional(),
-//   justifyContent: z.string().optional(),
-//   alignContent: z.string().optional(),
-//   placeContent: z.string().optional(),
-//   gridAutoColumns: z.string().optional(),
-//   gridAutoRows: z.string().optional(),
-//   gridAutoFlow: z.string().optional(),
-//   gridColumn: z.string().optional(),
-//   gridRow: z.string().optional(),
-//   gridArea: z.string().optional(),
-//   justifySelf: z.string().optional(),
-//   alignSelf: z.string().optional(),
-//   placeSelf: z.string().optional()
-// });
-
-// const CSSDimensionsSchema = z.object({
-//   width: z.string().optional(),
-//   height: z.string().optional(),
-//   minWidth: z.string().optional(),
-//   minHeight: z.string().optional(),
-//   maxWidth: z.string().optional(),
-//   maxHeight: z.string().optional(),
-//   boxSizing: z.string().optional()
-// });
-
-// const CSSSpacingSchema = z.object({
-//   margin: z.string().optional(),
-//   marginTop: z.string().optional(),
-//   marginRight: z.string().optional(),
-//   marginBottom: z.string().optional(),
-//   marginLeft: z.string().optional(),
-//   padding: z.string().optional(),
-//   paddingTop: z.string().optional(),
-//   paddingRight: z.string().optional(),
-//   paddingBottom: z.string().optional(),
-//   paddingLeft: z.string().optional()
-// });
-
-// const CSSVisualSchema = z.object({
-//   opacity: z.union([z.string(), z.number()]).optional(),
-//   visibility: z.string().optional(),
-//   overflow: z.string().optional(),
-//   overflowX: z.string().optional(),
-//   overflowY: z.string().optional(),
-//   transform: z.string().optional(),
-//   transformOrigin: z.string().optional(),
-//   filter: z.string().optional(),
-//   backdropFilter: z.string().optional(),
-//   clipPath: z.string().optional(),
-//   maskPosition: z.string().optional(),
-//   maskRepeat: z.string().optional(),
-//   maskSize: z.string().optional()
-// });
-
-// const BgLayersResultSchema = z.object({
-//   id: z.string(),
-//   success: z.boolean(),
-//   html: z.string(),
-//   error: z.string().optional(),
-//   originalDivCount: z.number(),
-//   optimizedDivCount: z.number(),
-//   widgetContent: z.string().optional()
-// });
-
-// const FlexGridResultSchema = z.object({
-//   id: z.string(),
-//   success: z.boolean(),
-//   html: z.string(),
-//   error: z.string().optional(),
-//   originalDivCount: z.number(),
-//   optimizedDivCount: z.number(),
-//   templatePlaceholders: z.array(z.string()).optional(),
-//   depth: z.number().optional()
-// });
-
-// // ===== VALIDATION FUNCTIONS =====
-// const extractCSSProperties = (htmlString) => {
-//   const styleMatch = htmlString.match(/style="([^"]+)"/);
-//   if (!styleMatch) return {};
-  
-//   const styleString = styleMatch[1];
-//   const properties = {};
-  
-//   const cssRegex = /([a-zA-Z-]+)\s*:\s*([^;]+);?/g;
-//   let match;
-  
-//   while ((match = cssRegex.exec(styleString)) !== null) {
-//     const prop = match[1].replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-//     properties[prop] = match[2].trim();
-//   }
-  
-//   return properties;
-// };
-
-// const checkPropertyPreservation = (originalHtml, optimizedHtml, criticalProps = []) => {
-//   const originalProps = extractCSSProperties(originalHtml);
-//   const optimizedProps = extractCSSProperties(optimizedHtml);
-  
-//   const lostProperties = [];
-//   const preservedProperties = [];
-  
-//   const defaultCriticalProps = [
-//     'backgroundColor', 'backgroundImage', 'backgroundSize', 'backgroundPosition',
-//     'position', 'top', 'left', 'right', 'bottom', 'zIndex',
-//     'display', 'flexDirection', 'justifyContent', 'alignItems',
-//     'gridTemplateColumns', 'gridTemplateRows', 'gap',
-//     'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight',
-//     'margin', 'marginTop', 'marginLeft', 'marginRight', 'marginBottom',
-//     'padding', 'paddingTop', 'paddingLeft', 'paddingRight', 'paddingBottom',
-//     'transform', 'opacity', 'overflow'
-//   ];
-  
-//   const propsToCheck = [...defaultCriticalProps, ...criticalProps];
-  
-//   propsToCheck.forEach(prop => {
-//     if (originalProps[prop] && !optimizedProps[prop]) {
-//       lostProperties.push(prop);
-//     } else if (originalProps[prop] && optimizedProps[prop]) {
-//       preservedProperties.push(prop);
-//     }
-//   });
-  
-//   return {
-//     lostProperties,
-//     preservedProperties,
-//     hasLostCriticalProps: lostProperties.length > 0,
-//     preservationRate: preservedProperties.length / Math.max(Object.keys(originalProps).length, 1)
-//   };
-// };
-
-// const validateBgLayersResult = (result) => {
-//   try {
-//     const validated = BgLayersResultSchema.parse(result);
-    
-//     if (validated.success && validated.html) {
-//       const hasBackgroundColor = validated.html.includes('background-color') || 
-//                                  validated.html.includes('backgroundColor');
-//       const hasBackgroundImage = validated.html.includes('background-image') || 
-//                                  validated.html.includes('backgroundImage');
-//       const hasPositioning = validated.html.includes('position:') || 
-//                             validated.html.includes('top:') || 
-//                             validated.html.includes('left:');
-                            
-//       if (validated.originalDivCount > validated.optimizedDivCount && 
-//           !hasPositioning && validated.html.length > 100) {
-//         console.warn(`⚠️ Possible positioning loss in ${validated.id}`);
-//       }
-//     }
-    
-//     return { isValid: true, data: validated, errors: null };
-//   } catch (error) {
-//     return { 
-//       isValid: false, 
-//       data: null, 
-//       errors: error.errors || [{ message: error.message }] 
-//     };
-//   }
-// };
-
-// const validateFlexGridResult = (result) => {
-//   try {
-//     const validated = FlexGridResultSchema.parse(result);
-    
-//     if (validated.success && validated.html) {
-//       const hasFlexProps = validated.html.includes('display:flex') || 
-//                           validated.html.includes('flex-direction') ||
-//                           validated.html.includes('justify-content');
-//       const hasGridProps = validated.html.includes('display:grid') || 
-//                           validated.html.includes('grid-template') ||
-//                           validated.html.includes('grid-column');
-//       const hasSpacing = validated.html.includes('margin') || 
-//                         validated.html.includes('padding');
-                        
-//       if (validated.originalDivCount > validated.optimizedDivCount && 
-//           !(hasFlexProps || hasGridProps) && validated.html.length > 100) {
-//         console.warn(`⚠️ Possible layout properties loss in ${validated.id}`);
-//       }
-//     }
-    
-//     return { isValid: true, data: validated, errors: null };
-//   } catch (error) {
-//     return { 
-//       isValid: false, 
-//       data: null, 
-//       errors: error.errors || [{ message: error.message }] 
-//     };
-//   }
-// };
-
-// const processOptimizationResult = (result, type = 'bgLayers') => {
-//   const validator = type === 'bgLayers' ? validateBgLayersResult : validateFlexGridResult;
-//   const validation = validator(result);
-  
-//   if (!validation.isValid) {
-//     console.error(`❌ Validation failed for ${result.id}:`, validation.errors);
-//     return {
-//       ...result,
-//       success: false,
-//       error: `Validation failed: ${validation.errors.map(e => e.message).join(', ')}`
-//     };
-//   }
-  
-//   return validation.data;
-// };
-
-// if (!isMainThread) {
-//   (async () => {
-//     try {
-//       Object.keys(require.cache).forEach(key => {
-//         delete require.cache[key];
-//       });
-
-//       const { html, id, promptType } = workerData;
-      
-//       const workerOpenAI = new OpenAI({
-//         apiKey: process.env.OPENAI_API_KEY
-//       });
-
-//       const prompt = promptType === 'bgLayers' ? BGLAYERS_OPTIMIZATION_PROMPT : FLEXGRID_OPTIMIZATION_PROMPT;
-//       const response = await workerOpenAI.chat.completions.create({
-//         model: "gpt-4o-mini",
-//         messages: [{ role: "user", content: `${prompt}\n${html}` }],
-//         temperature: 0.1,
-//         max_tokens: 12288,
-//       });
-
-//       const optimizedHtml = response.choices[0].message.content
-//         .replace(/^```html\s*/i, '')
-//         .replace(/```\s*$/i, '')
-//         .trim();
-
-//       parentPort.postMessage({ 
-//         success: true, 
-//         optimizedHtml, 
-//         id 
-//       });
-//     } catch (error) {
-//       parentPort.postMessage({ 
-//         success: false, 
-//         error: error.message, 
-//         id: workerData.id 
-//       });
-//     }
-//   })();
-  
-//   return;
-// }
-// async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
-//   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
-//   console.log('='.repeat(60));
-  
-//   const widgetsHtmlPath = path.join(outputDir, `widgets_extracted_${sectionIndex}.html`);
-//   if (!await fs.access(widgetsHtmlPath).then(() => true).catch(() => false)) {
-//     throw new Error(`Widgets-extracted HTML file not found at ${widgetsHtmlPath}`);
-//   }
-
-//   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
-//   console.log(`✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
-
-//   console.log('\n🎨 Processing bgLayers divs...');
-//   const $ = cheerio.load(widgetsHtml);
-//   const bgLayerDivs = [];
-  
-//   $('div[id^="bgLayers"]').each((index, element) => {
-//     const $element = $(element);
-//     bgLayerDivs.push({
-//       id: $element.attr('id'),
-//       element: element,
-//       html: $.html($element)
-//     });
-//   });
-
-//   console.log(`Found ${bgLayerDivs.length} bgLayers divs`);
-//   const bgTemplates = {};
-
-//   const bgLayerResults = await Promise.all(bgLayerDivs.map((divData, i) => {
-//     console.log(`\n🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${divData.id}`);
-    
-//     // Check size before sending to AI
-//     const sizeInBytes = Buffer.byteLength(divData.html, 'utf8');
-//     if (sizeInBytes > 12000) {
-//       console.warn(`📏 Div ${divData.id} is too large (${sizeInBytes} bytes > 12000), saving intact`);
-//       return Promise.resolve({
-//         id: divData.id,
-//         success: true,
-//         html: divData.html, // Keep original HTML
-//         error: null,
-//         skippedDueToSize: true
-//       });
-//     }
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: divData.id,
-//           promptType: 'bgLayers'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${divData.id}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: 'Timeout',
-//           html: ''
-//         });
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         resolve({
-//           id: divData.id,
-//           success: message.success,
-//           html: message.optimizedHtml || '',
-//           error: message.error
-//         });
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: error.message,
-//           html: ''
-//         });
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Process bgLayer results with Zod validation
-//   bgLayerResults.forEach((result, i) => {
-//     const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-    
-//     if (result.skippedDueToSize) {
-//       bgTemplates[`{{${bgKey}}}`] = result.html;
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.log(`📦 Saved large div ${result.id} intact (${Buffer.byteLength(result.html, 'utf8')} bytes)`);
-//       return;
-//     }
-    
-//     const enhancedResult = {
-//       ...result,
-//       originalDivCount: 3, // Always 3 nested divs in bgLayers
-//       optimizedDivCount: result.html ? (result.html.match(/<div/g) || []).length : 0
-//     };
-    
-//     const validatedResult = processOptimizationResult(enhancedResult, 'bgLayers');
-    
-//     if (validatedResult.success && validatedResult.html) {
-//       // Check property preservation
-//       const preservation = checkPropertyPreservation(
-//         bgLayerDivs[i].html, 
-//         validatedResult.html,
-//         ['backgroundColor', 'backgroundImage', 'position', 'zIndex']
-//       );
-      
-//       if (preservation.hasLostCriticalProps) {
-//         console.warn(`⚠️ ${validatedResult.id} lost critical properties:`, preservation.lostProperties);
-//         if (preservation.lostProperties.includes('backgroundColor') || 
-//             preservation.lostProperties.includes('backgroundImage')) {
-//           console.warn(`🔄 Using original HTML for ${validatedResult.id} due to background property loss`);
-//           bgTemplates[`{{${bgKey}}}`] = bgLayerDivs[i].html;
-//         } else {
-//           bgTemplates[`{{${bgKey}}}`] = validatedResult.html;
-//         }
-//       } else {
-//         bgTemplates[`{{${bgKey}}}`] = validatedResult.html;
-//         console.log(`✅ Optimized ${validatedResult.id} (${validatedResult.html.length} bytes) - Preserved ${preservation.preservedProperties.length} properties`);
-//       }
-      
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//     } else {
-//       bgTemplates[`{{${bgKey}}}`] = bgLayerDivs[i].html;
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.error(`❌ Failed ${validatedResult.id}: ${validatedResult.error} - Using original HTML`);
-//     }
-//   });
-
-//   const bgJsonFile = `bg_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, bgJsonFile), JSON.stringify(bgTemplates, null, 2));
-  
-//   const htmlWithBgPlaceholders = $.html();
-//   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bgPlaceholderHtmlFile), htmlWithBgPlaceholders);
-
-//   function hasFlexOrGridProperties(element) {
-//     const $element = $(element);
-//     const style = $element.attr('style') || '';
-//     const className = $element.attr('class') || '';
-    
-//     const hasFlexInline = /display\s*:\s*(flex|inline-flex)/i.test(style) || 
-//                          /flex[\s-]/i.test(style);
-//     const hasGridInline = /display\s*:\s*(grid|inline-grid)/i.test(style) || 
-//                          /grid[\s-]/i.test(style);
-    
-//     const hasFlexClass = /flex|d-flex|display-flex/i.test(className);
-//     const hasGridClass = /grid|d-grid|display-grid/i.test(className);
-    
-//     return hasFlexInline || hasGridInline || hasFlexClass || hasGridClass;
-//   }
-
-//   function containsOnlyWidgets(element) {
-//     const $element = $(element);
-//     const childDivs = $element.find('div[id]');
-    
-//     if (childDivs.length === 0) {
-//       const id = $element.attr('id');
-//       return id && (id.includes('widget') || id.includes('Widget'));
-//     }
-    
-//     let allChildrenAreWidgets = true;
-//     childDivs.each((index, childElement) => {
-//       const childId = $(childElement).attr('id');
-//       if (!childId || (!childId.includes('widget') && !childId.includes('Widget'))) {
-//         allChildrenAreWidgets = false;
-//         return false;
-//       }
-//     });
-    
-//     return allChildrenAreWidgets;
-//   }
-
-//   function getNestingDepth(element, $context) {
-//     let depth = 0;
-//     let current = $context(element);
-//     while (current.parent('div[id]').length > 0) {
-//       current = current.parent('div[id]').first();
-//       depth++;
-//     }
-//     return depth;
-//   }
-
-//   console.log('\n📊 Processing flex/grid divs (innermost first)...');
-//   let $saved = cheerio.load(htmlWithBgPlaceholders);
-//   const componentTemplates = {};
-//   let templateCounter = 2001;
-  
-//   let processedInThisRound = true;
-//   let totalProcessed = 0;
-  
-//   while (processedInThisRound) {
-//     processedInThisRound = false;
-//     const flexGridDivs = [];
-    
-//     $saved('div[id]').each((index, element) => {
-//       const $element = $saved(element);
-//       const id = $element.attr('id');
-      
-//       if (id && id.startsWith('bgLayers')) {
-//         return;
-//       }
-      
-//       if ($saved.html($element).includes('{{template-')) {
-//         return;
-//       }
-      
-//       if (id && hasFlexOrGridProperties(element)) {
-//         if (!containsOnlyWidgets(element)) {
-//           flexGridDivs.push({
-//             id: id,
-//             element: element,
-//             html: $saved.html($element),
-//             depth: getNestingDepth(element, $saved)
-//           });
-//         } else {
-//           console.log(`🚫 Skipping widget-only flex/grid div: ${id}`);
-//         }
-//       }
-//     });
-
-//     if (flexGridDivs.length === 0) {
-//       break;
-//     }
-
-//     flexGridDivs.sort((a, b) => b.depth - a.depth);
-    
-//     console.log(`\n🔄 Round ${totalProcessed > 0 ? Math.floor(totalProcessed/10) + 1 : 1}: Found ${flexGridDivs.length} flex/grid divs`);
-//     flexGridDivs.forEach(div => {
-//       console.log(`   📐 ${div.id} (depth: ${div.depth})`);
-//     });
-
-//     const flexGridResults = await Promise.all(flexGridDivs.map(async (divData, i) => {
-//       console.log(`\n🔧 Processing flex/grid div ${i + 1}/${flexGridDivs.length}: ${divData.id} (depth: ${divData.depth})`);
-      
-//       // Check size before sending to AI
-//       const sizeInBytes = Buffer.byteLength(divData.html, 'utf8');
-//       if (sizeInBytes > 12000) {
-//         console.warn(`📏 Div ${divData.id} is too large (${sizeInBytes} bytes > 12000), saving intact`);
-//         return Promise.resolve({
-//           id: divData.id,
-//           success: true,
-//           html: divData.html, // Keep original HTML
-//           error: null,
-//           skippedDueToSize: true
-//         });
-//       }
-      
-//       return new Promise((resolve) => {
-//         const worker = new Worker(__filename, {
-//           workerData: {
-//             html: divData.html,
-//             id: divData.id,
-//             promptType: 'flexGrid'
-//           },
-//           resourceLimits: {
-//             maxOldGenerationSizeMb: 512,
-//             maxYoungGenerationSizeMb: 512,
-//             codeRangeSizeMb: 16,
-//             stackSizeMb: 4
-//           }
-//         });
-
-//         const timeout = setTimeout(() => {
-//           worker.terminate();
-//           console.error(`⌛ Timeout processing ${divData.id}`);
-//           resolve({
-//             id: divData.id,
-//             success: false,
-//             error: 'Timeout',
-//             html: ''
-//           });
-//         }, 300000); // 5 minute timeout
-
-//         worker.on('message', (message) => {
-//           clearTimeout(timeout);
-//           resolve({
-//             id: divData.id,
-//             success: message.success,
-//             html: message.optimizedHtml || '',
-//             error: message.error
-//           });
-//         });
-
-//         worker.on('error', (error) => {
-//           clearTimeout(timeout);
-//           console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//           resolve({
-//             id: divData.id,
-//             success: false,
-//             error: error.message,
-//             html: ''
-//           });
-//         });
-
-//         worker.on('exit', (code) => {
-//           clearTimeout(timeout);
-//           if (code !== 0) {
-//             console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//           }
-//         });
-//       });
-//     }));
-
-//     // Process flexGrid results with Zod validation
-//     flexGridResults.forEach((result, i) => {
-//       const templateKey = `template-${String(templateCounter).padStart(4, '0')}`;
-//       const originalHtml = flexGridDivs[i].html;
-      
-//       if (result.skippedDueToSize) {
-//         componentTemplates[`{{${templateKey}}}`] = result.html;
-//         $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//         console.log(`📦 Saved large div ${result.id} → {{${templateKey}}} intact (${Buffer.byteLength(result.html, 'utf8')} bytes)`);
-//         processedInThisRound = true;
-//         totalProcessed++;
-//         templateCounter++;
-//         return;
-//       }
-      
-//       const enhancedResult = {
-//         ...result,
-//         originalDivCount: (originalHtml.match(/<div/g) || []).length,
-//         optimizedDivCount: result.html ? (result.html.match(/<div/g) || []).length : 0,
-//         depth: flexGridDivs[i].depth
-//       };
-      
-//       const validatedResult = processOptimizationResult(enhancedResult, 'flexGrid');
-      
-//       if (validatedResult.success && validatedResult.html) {
-//         // Check property preservation
-//         const preservation = checkPropertyPreservation(
-//           originalHtml,
-//           validatedResult.html,
-//           ['display', 'flexDirection', 'justifyContent', 'alignItems', 'gridTemplateColumns', 'gridTemplateRows', 'gap', 'position', 'top', 'left', 'right', 'bottom', 'width', 'height', 'margin', 'padding']
-//         );
-
-//         if (preservation.hasLostCriticalProps) {
-//           console.warn(`⚠️ ${validatedResult.id} lost critical properties:`, preservation.lostProperties);
-//           const criticalLayoutProps = ['display', 'flexDirection', 'gridTemplateColumns', 'gridTemplateRows'];
-//           if (preservation.lostProperties.some(prop => criticalLayoutProps.includes(prop))) {
-//             console.error(`❌ Critical layout property lost for ${validatedResult.id}. Using original HTML.`);
-//             componentTemplates[`{{${templateKey}}}`] = originalHtml;
-//           } else {
-//             componentTemplates[`{{${templateKey}}}`] = validatedResult.html;
-//           }
-//         } else {
-//           componentTemplates[`{{${templateKey}}}`] = validatedResult.html;
-//         }
-
-//         $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//         console.log(`✅ Optimized ${validatedResult.id} → {{${templateKey}}} (${validatedResult.html.length} bytes) - Preserved ${preservation.preservedProperties.length} properties`);
-//         processedInThisRound = true;
-//         totalProcessed++;
-//       } else {
-//         componentTemplates[`{{${templateKey}}}`] = originalHtml;
-//         $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//         console.error(`❌ Failed ${validatedResult.id}: ${validatedResult.error} - Using original HTML`);
-//       }
-      
-//       templateCounter++;
-//     });
-    
-//     if (processedInThisRound) {
-//       $saved = cheerio.load($saved.html());
-//     }
-//   }
-
-//   console.log(`\n🎯 Completed processing ${totalProcessed} flex/grid divs in total`);
-
-//   // Save final output
-//   const finalBareHtml = $saved.html();
-//   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bareMinimumFile), finalBareHtml);
-  
-//   const componentsJsonFile = `bareminimum_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, componentsJsonFile), JSON.stringify(componentTemplates, null, 2));
-
-//   console.log('\n🏁 Bare minimum HTML generation complete!');
-//   console.log('='.repeat(60));
-
-//   return {
-//     bareHtml: finalBareHtml,
-//     bareMinimumFile,
-//     bgJsonFile,
-//     componentsJsonFile,
-//     bgPlaceholderHtmlFile,
-//     bgTemplates,
-//     componentTemplates
-//   };
-// }
-// module.exports = {
-//   generateBareMinimumHtml,
-//   BGLAYERS_OPTIMIZATION_PROMPT,
-//   FLEXGRID_OPTIMIZATION_PROMPT
-// };
 
 const CSSPositionSchema = z.object({
   position: z.enum(['static', 'relative', 'absolute', 'fixed', 'sticky']).optional(),
@@ -1007,8 +363,10 @@ const FlexGridResultSchema = z.object({
 // ===== CRITICAL PROPERTIES FOR BGLAYERS =====
 const CRITICAL_BGLAYER_PROPS = [
   'position', 'top', 'left', 'right', 'bottom', 'zIndex',
-  'backgroundColor', 'backgroundImage', 'backgroundSize', 'backgroundPosition',
-  'backgroundRepeat', 'backgroundAttachment', 'backgroundClip',
+  'backgroundColor', 'background-color', 'backgroundImage', 'background-image', 
+  'backgroundSize', 'background-size', 'backgroundPosition', 'background-position',
+  'backgroundRepeat', 'background-repeat', 'backgroundAttachment', 'background-attachment', 
+  'backgroundClip', 'background-clip', 'background', // Added shorthand background
   'width', 'height', 'minHeight', 'maxHeight',
   'transform', 'opacity', 'overflow', 'pointerEvents'
 ];
@@ -1021,35 +379,109 @@ const extractCSSProperties = (htmlString) => {
   const styleString = styleMatch[1];
   const properties = {};
   
+  // More comprehensive regex to catch all CSS properties
   const cssRegex = /([a-zA-Z-]+)\s*:\s*([^;]+);?/g;
   let match;
   
   while ((match = cssRegex.exec(styleString)) !== null) {
-    const prop = match[1].replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-    properties[prop] = match[2].trim();
+    const originalProp = match[1].trim();
+    const value = match[2].trim();
+    
+    // Store both original (kebab-case) and camelCase versions
+    properties[originalProp] = value;
+    
+    // Convert to camelCase for JavaScript compatibility
+    const camelCaseProp = originalProp.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    properties[camelCaseProp] = value;
   }
   
   return properties;
 };
 
+const hasBackgroundProperties = (htmlString) => {
+  const props = extractCSSProperties(htmlString);
+  
+  // Check all possible background property variations
+  const backgroundChecks = [
+    props.backgroundColor || props['background-color'],
+    props.backgroundImage || props['background-image'],
+    props.background,
+    // Also check if the style string directly contains these
+    htmlString.includes('background-color:'),
+    htmlString.includes('backgroundColor:'),
+    htmlString.includes('background-image:'),
+    htmlString.includes('backgroundImage:'),
+    htmlString.includes('background:') && !htmlString.includes('background-position') && !htmlString.includes('background-size')
+  ];
+  
+  return backgroundChecks.some(check => check);
+};
+
 const isCriticalBgLayerDiv = (htmlString) => {
   const props = extractCSSProperties(htmlString);
   
-  // Check if this div has background or positioning properties
-  const hasBackground = props.backgroundColor || props.backgroundImage || props.background;
+  // Enhanced background detection
+  const hasBackground = hasBackgroundProperties(htmlString);
+  
   const hasPositioning = props.position && (props.position !== 'static');
   const hasTransform = props.transform;
-  const hasZIndex = props.zIndex;
+  const hasZIndex = props.zIndex || props['z-index'];
   
-  return hasBackground || hasPositioning || hasTransform || hasZIndex;
+  // Also check for rgba, rgb, hex colors in the HTML
+  const hasColorValue = /(?:background-color|backgroundColor)\s*:\s*(?:#[0-9a-f]{3,8}|rgb|rgba|hsl|hsla|\w+)/i.test(htmlString);
+  
+  return hasBackground || hasPositioning || hasTransform || hasZIndex || hasColorValue;
 };
 
+// Enhanced property preservation with background color priority
 const preserveCriticalBgLayerStructure = (originalHtml, optimizedHtml) => {
   const originalProps = extractCSSProperties(originalHtml);
   const optimizedProps = extractCSSProperties(optimizedHtml);
   
-  // If original has critical positioning, ensure optimized preserves it
-  const criticalPositioningProps = ['position', 'top', 'left', 'right', 'bottom', 'zIndex'];
+  console.log('🔍 Original props:', Object.keys(originalProps));
+  console.log('🔍 Optimized props:', Object.keys(optimizedProps));
+  
+  // CRITICAL: Check background color specifically with high priority
+  const backgroundColorVariations = [
+    'backgroundColor', 'background-color', 'background'
+  ];
+  
+  let hasOriginalBgColor = false;
+  let hasOptimizedBgColor = false;
+  let originalBgColorValue = '';
+  let optimizedBgColorValue = '';
+  
+  for (const prop of backgroundColorVariations) {
+    if (originalProps[prop]) {
+      hasOriginalBgColor = true;
+      originalBgColorValue = originalProps[prop];
+      console.log(`🎨 Found original background: ${prop} = ${originalBgColorValue}`);
+    }
+    if (optimizedProps[prop]) {
+      hasOptimizedBgColor = true;
+      optimizedBgColorValue = optimizedProps[prop];
+      console.log(`🎨 Found optimized background: ${prop} = ${optimizedBgColorValue}`);
+    }
+  }
+  
+  // If original has background color but optimized doesn't, REJECT optimization
+  if (hasOriginalBgColor && !hasOptimizedBgColor) {
+    console.error('🚨 CRITICAL: Background color was lost during optimization!');
+    console.error(`🚨 Original had: ${originalBgColorValue}`);
+    console.error('🚨 Using original HTML to preserve background color');
+    return originalHtml;
+  }
+  
+  // If both have background colors but they're different, REJECT optimization
+  if (hasOriginalBgColor && hasOptimizedBgColor && originalBgColorValue !== optimizedBgColorValue) {
+    console.error('🚨 CRITICAL: Background color was changed during optimization!');
+    console.error(`🚨 Original: ${originalBgColorValue} → Optimized: ${optimizedBgColorValue}`);
+    console.error('🚨 Using original HTML to preserve exact background color');
+    return originalHtml;
+  }
+  
+  // Check positioning properties
+  const criticalPositioningProps = ['position', 'top', 'left', 'right', 'bottom', 'zIndex', 'z-index'];
   const hasCriticalPositioning = criticalPositioningProps.some(prop => originalProps[prop]);
   
   if (hasCriticalPositioning) {
@@ -1063,11 +495,12 @@ const preserveCriticalBgLayerStructure = (originalHtml, optimizedHtml) => {
     }
   }
   
-  // Check background properties preservation
-  const backgroundProps = ['backgroundColor', 'backgroundImage', 'backgroundSize', 'backgroundPosition'];
-  const hasBackground = backgroundProps.some(prop => originalProps[prop]);
+  // Check other background properties
+  const backgroundProps = ['backgroundImage', 'background-image', 'backgroundSize', 'background-size', 
+                          'backgroundPosition', 'background-position', 'backgroundRepeat', 'background-repeat'];
+  const hasOtherBackground = backgroundProps.some(prop => originalProps[prop]);
   
-  if (hasBackground) {
+  if (hasOtherBackground) {
     const preservedBackground = backgroundProps.every(prop =>
       !originalProps[prop] || optimizedProps[prop] === originalProps[prop]
     );
@@ -1078,8 +511,57 @@ const preserveCriticalBgLayerStructure = (originalHtml, optimizedHtml) => {
     }
   }
   
+  console.log('✅ All critical properties preserved, using optimized HTML');
   return optimizedHtml;
 };
+
+const ENHANCED_BGLAYERS_PROMPT = `🚨 ABSOLUTE CRITICAL PRIORITY: BACKGROUND COLORS MUST BE PRESERVED 🚨
+
+Background colors are mandotory for this bgLayer div, if you cannot add background colors for the div please make sure you can one nestoring div that has the background colors.
+
+This div contains essential background styling that creates the visual foundation of the design. 
+ANY loss of background colors will completely break the visual appearance.
+
+MANDATORY PRESERVATION RULES (NEVER VIOLATE):
+1. 🎨 BACKGROUND COLORS: Preserve EXACTLY - background-color, backgroundColor, background with colors
+2. 🖼️ BACKGROUND IMAGES: Preserve EXACTLY - background-image, backgroundImage 
+3. 📐 POSITIONING: Preserve EXACTLY - position, top, left, right, bottom, z-index, transform
+4. 📏 DIMENSIONS: Preserve EXACTLY - width, height, min-height, max-height, min-width, max-width
+5. ✨ VISUAL EFFECTS: Preserve EXACTLY - opacity, filter, box-shadow, border-radius
+6. 🔧 LAYOUT: Preserve EXACTLY - overflow, pointer-events, display (if positioned)
+
+BACKGROUND COLOR EXAMPLES TO PRESERVE:
+✅ background-color: #ff6b6b
+✅ background-color: rgba(255, 107, 107, 0.8)
+✅ background-color: red
+✅ backgroundColor: #4ecdc4
+✅ background: linear-gradient(45deg, #ff6b6b, #4ecdc4)
+✅ background: #ffffff
+
+ONLY SAFE OPTIMIZATIONS ALLOWED:
+✅ Remove completely empty divs: <div></div> or <div class=""></div>
+✅ Remove redundant whitespace between tags
+✅ Combine identical adjacent text nodes
+✅ Remove unused empty attributes
+
+❌ NEVER REMOVE OR MODIFY:
+❌ Any div with styling attributes
+❌ Any CSS properties whatsoever
+❌ Any background colors, images, or effects
+❌ Any positioning or layout properties
+❌ The DOM structure or hierarchy
+
+VALIDATION CHECK - Before returning optimized HTML, verify:
+1. Does original have background-color/backgroundColor? → Must be in optimized version
+2. Does original have background-image/backgroundImage? → Must be in optimized version  
+3. Does original have position/positioning? → Must be in optimized version
+4. Are all background values identical? → They must match exactly
+
+If ANY background property is lost or changed, DO NOT optimize - return the original HTML unchanged.
+
+Remember: This is a BACKGROUND LAYER - its visual properties are the entire purpose of its existence.
+
+HTML to optimize (with ABSOLUTE background preservation):`;
 
 const checkPropertyPreservation = (originalHtml, optimizedHtml, criticalProps = []) => {
   const originalProps = extractCSSProperties(originalHtml);
@@ -1122,26 +604,48 @@ const validateBgLayersResult = (result) => {
     const validated = BgLayersResultSchema.parse(result);
     
     if (validated.success && validated.html) {
-      // Enhanced validation for bgLayers
+      // Enhanced background validation with multiple checks
+      const originalHtml = result.originalHtml || ''; // You'll need to pass this
+      
+      // Multiple background detection methods
       const hasBackgroundColor = validated.html.includes('background-color') || 
-                                 validated.html.includes('backgroundColor');
+                                 validated.html.includes('backgroundColor') ||
+                                 /background\s*:\s*[^;]*(?:#[0-9a-f]{3,8}|rgb|rgba|hsl|hsla|red|blue|green|yellow|white|black)/i.test(validated.html);
+                                 
       const hasBackgroundImage = validated.html.includes('background-image') || 
-                                 validated.html.includes('backgroundImage');
+                                 validated.html.includes('backgroundImage') ||
+                                 validated.html.includes('url(');
+                                 
       const hasPositioning = validated.html.includes('position:') || 
                             validated.html.includes('top:') || 
-                            validated.html.includes('left:');
+                            validated.html.includes('left:') ||
+                            validated.html.includes('absolute') ||
+                            validated.html.includes('relative') ||
+                            validated.html.includes('fixed');
       
       // Check if this is a critical bgLayer that should not be heavily optimized
       const isCritical = isCriticalBgLayerDiv(validated.html);
       
+      // CRITICAL: If original had background color, ensure optimized still has it
+      if (originalHtml && hasBackgroundProperties(originalHtml)) {
+        if (!hasBackgroundColor && !hasBackgroundImage) {
+          console.error(`🚨 CRITICAL: Background properties lost in ${validated.id}`);
+          return { 
+            isValid: false, 
+            data: null, 
+            errors: [{ message: 'Critical background properties lost - this will break the visual design' }] 
+          };
+        }
+      }
+      
       // More conservative validation for bgLayers
       if (validated.originalDivCount > validated.optimizedDivCount) {
-        if (isCritical && !hasPositioning) {
-          console.warn(`🚨 Critical bgLayer ${validated.id} lost positioning - BLOCKING optimization`);
-          return { isValid: false, data: null, errors: [{ message: 'Critical positioning lost' }] };
+        if (isCritical && !hasPositioning && hasBackgroundColor) {
+          console.warn(`🚨 Critical bgLayer ${validated.id} may have lost positioning but has background`);
+          // Still allow if background is preserved
         }
         
-        if ((hasBackgroundColor || hasBackgroundImage) && validated.html.length < 100) {
+        if ((hasBackgroundColor || hasBackgroundImage) && validated.html.length < 50) {
           console.warn(`🚨 bgLayer ${validated.id} seems over-optimized - content too small`);
           return { isValid: false, data: null, errors: [{ message: 'Over-optimization detected' }] };
         }
@@ -1208,96 +712,152 @@ const processOptimizationResult = (result, type = 'bgLayers') => {
 
 // Enhanced bgLayers processing
 const processBgLayerDiv = (divHtml, divId) => {
-  // Check if this is a critical bgLayer that should be preserved
-  if (isCriticalBgLayerDiv(divHtml)) {
-    console.log(`🛡️ ${divId} is critical bgLayer - using conservative optimization`);
+  // Check if this has background color - if so, it's ALWAYS critical
+  if (hasBackgroundProperties(divHtml)) {
+    console.log(`🎨 ${divId} has background properties - using MAXIMUM conservation`);
     
-    // For critical bgLayers, only do minimal optimization
-    // Remove empty divs but preserve structure and all styling
+    // For divs with backgrounds, do MINIMAL optimization - only remove truly empty divs
     const minimalOptimization = divHtml
-      .replace(/<div[^>]*>\s*<\/div>/g, '') // Remove truly empty divs
-      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replace(/<div[^>]*>\s*<\/div>/g, '') // Remove only completely empty divs
+      .replace(/\s+>/g, '>') // Clean up whitespace before closing tags
+      .replace(/>\s+</g, '><') // Clean up whitespace between tags
       .trim();
     
     return {
       success: true,
       html: minimalOptimization,
-      conservative: true
+      conservative: true,
+      reason: 'has_background_properties'
+    };
+  }
+  
+  // Check if this is a critical bgLayer that should be preserved
+  if (isCriticalBgLayerDiv(divHtml)) {
+    console.log(`🛡️ ${divId} is critical bgLayer - using conservative optimization`);
+    
+    const minimalOptimization = divHtml
+      .replace(/<div[^>]*>\s*<\/div>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    return {
+      success: true,
+      html: minimalOptimization,
+      conservative: true,
+      reason: 'critical_structure'
     };
   }
   
   return null; // Proceed with normal AI optimization
 };
 
+const getBgLayersWorkerPrompt = () => ENHANCED_BGLAYERS_PROMPT;
+
 if (!isMainThread) {
   (async () => {
     try {
+      // Clear require cache for worker isolation
       Object.keys(require.cache).forEach(key => {
         delete require.cache[key];
       });
 
+      // Destructure workerData at the top
       const { html, id, promptType } = workerData;
-      
-      // For bgLayers, try conservative approach first
+
+      // For bgLayers, try conservative approach first with background detection
       if (promptType === 'bgLayers') {
-        const conservativeResult = processBgLayerDiv(html, id);
-        if (conservativeResult) {
-          parentPort.postMessage({ 
-            success: true, 
-            optimizedHtml: conservativeResult.html, 
-            id,
-            conservative: true
-          });
-          return;
+        // Enhanced background detection before sending to AI
+        const hasBackground = hasBackgroundProperties(html);
+
+        if (hasBackground) {
+          console.log(`🎨 Worker detected background in ${id} - using maximum conservation`);
+          const conservativeResult = processBgLayerDiv(html, id);
+          if (conservativeResult) {
+            parentPort.postMessage({
+              success: true,
+              optimizedHtml: conservativeResult.html,
+              id,
+              conservative: true,
+              reason: 'background_detected_in_worker'
+            });
+            return;
+          }
+        }
+
+        // Check if critical
+        const isCritical = isCriticalBgLayerDiv(html);
+        if (isCritical) {
+          console.log(`🛡️ Worker detected critical structure in ${id} - using conservation`);
+          const conservativeResult = processBgLayerDiv(html, id);
+          if (conservativeResult) {
+            parentPort.postMessage({
+              success: true,
+              optimizedHtml: conservativeResult.html,
+              id,
+              conservative: true,
+              reason: 'critical_detected_in_worker'
+            });
+            return;
+          }
         }
       }
-      
+
       const workerOpenAI = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
       });
 
-      // Updated prompt for bgLayers to be more conservative
-     const bgLayersPrompt = promptType === 'bgLayers' ? 
-        `CRITICAL: This is a background layer div that provides essential visual structure. You MUST preserve ALL positioning and visual properties exactly to maintain the design integrity.
+      // Use the enhanced prompt for bgLayers
+      const bgLayersPrompt = promptType === 'bgLayers'
+        ? `🚨 ABSOLUTE CRITICAL PRIORITY: BACKGROUND COLORS MUST BE PRESERVED 🚨
 
-STRICT PRESERVATION RULES:
-1. NEVER modify positioning: position, top, left, right, bottom, z-index, transform
-2. NEVER modify backgrounds: background-color, background-image, background-size, background-position, background-repeat
-3. NEVER modify dimensions: width, height, min-height, max-height, min-width, max-width
-4. NEVER modify visual effects: opacity, filter, box-shadow, border-radius
-5. NEVER modify layout behavior: overflow, pointer-events, display (if positioned)
+This div contains essential background styling that creates the visual foundation of the design. 
+ANY loss of background colors will completely break the visual appearance.
 
-SAFE OPTIMIZATIONS ONLY:
-✅ Remove completely empty divs with no styles: <div></div>
+MANDATORY PRESERVATION RULES (NEVER VIOLATE):
+1. 🎨 BACKGROUND COLORS: Preserve EXACTLY - background-color, backgroundColor, background with colors
+2. 🖼️ BACKGROUND IMAGES: Preserve EXACTLY - background-image, backgroundImage 
+3. 📐 POSITIONING: Preserve EXACTLY - position, top, left, right, bottom, z-index, transform
+4. 📏 DIMENSIONS: Preserve EXACTLY - width, height, min-height, max-height, min-width, max-width
+5. ✨ VISUAL EFFECTS: Preserve EXACTLY - opacity, filter, box-shadow, border-radius
+6. 🔧 LAYOUT: Preserve EXACTLY - overflow, pointer-events, display (if positioned)
+
+BACKGROUND COLOR EXAMPLES TO PRESERVE:
+✅ background-color: #ff6b6b
+✅ background-color: rgba(255, 107, 107, 0.8)
+✅ background-color: red
+✅ backgroundColor: #4ecdc4
+✅ background: linear-gradient(45deg, #ff6b6b, #4ecdc4)
+✅ background: #ffffff
+
+ONLY SAFE OPTIMIZATIONS ALLOWED:
+✅ Remove completely empty divs: <div></div> or <div class=""></div>
+✅ Remove redundant whitespace between tags
 ✅ Combine identical adjacent text nodes
-✅ Remove redundant whitespace in content
-✅ Simplify class names if no CSS dependencies
+✅ Remove unused empty attributes
 
-❌ DO NOT remove divs with any styling or positioning
-❌ DO NOT modify any CSS properties
-❌ DO NOT restructure the DOM hierarchy
+❌ NEVER REMOVE OR MODIFY:
+❌ Any div with styling attributes
+❌ Any CSS properties whatsoever
+❌ Any background colors, images, or effects
+❌ Any positioning or layout properties
+❌ The DOM structure or hierarchy
 
-EXAMPLE - WHAT TO PRESERVE:
-Input:
-<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); z-index: -1; opacity: 0.8;">
-  <div></div> <!-- This empty div can be removed -->
-  <div style="position: relative; top: 50px; background-color: rgba(255,255,255,0.1);"></div> <!-- KEEP THIS -->
-</div>
+CRITICAL VALIDATION - Before responding, check:
+1. Original has background-color? → Must exist in response
+2. Original has backgroundColor? → Must exist in response  
+3. Original has background: with color? → Must exist in response
+4. All background values identical? → They must match exactly
 
-Correct Output:
-<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); z-index: -1; opacity: 0.8;">
-  <div style="position: relative; top: 50px; background-color: rgba(255,255,255,0.1);"></div>
-</div>
+If ANY background property would be lost or changed, return the original HTML unchanged.
 
-Remember: Background layers create the visual foundation. Any positioning changes will break the entire design layout.
-
-HTML to optimize (CONSERVATIVELY):` : FLEXGRID_OPTIMIZATION_PROMPT;
+HTML to optimize (with ABSOLUTE background preservation):`
+        : FLEXGRID_OPTIMIZATION_PROMPT;
 
       const prompt = bgLayersPrompt;
       const response = await workerOpenAI.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: `${prompt}\n${html}` }],
-        temperature: promptType === 'bgLayers' ? 0.05 : 0.1, // More deterministic for bgLayers
+        temperature: promptType === 'bgLayers' ? 0.05 : 0.3,
         max_tokens: 12288,
       });
 
@@ -1306,20 +866,65 @@ HTML to optimize (CONSERVATIVELY):` : FLEXGRID_OPTIMIZATION_PROMPT;
         .replace(/```\s*$/i, '')
         .trim();
 
-      parentPort.postMessage({ 
-        success: true, 
-        optimizedHtml, 
-        id 
+      // CRITICAL: Post-AI validation for background preservation
+      if (promptType === 'bgLayers') {
+        const originalHasBackground = hasBackgroundProperties(html);
+        const optimizedHasBackground = hasBackgroundProperties(optimizedHtml);
+
+        if (originalHasBackground && !optimizedHasBackground) {
+          console.error(`🚨 AI removed background from ${id}! Using original HTML.`);
+          parentPort.postMessage({
+            success: true,
+            optimizedHtml: html,
+            id,
+            error: 'AI removed background - reverted to original'
+          });
+          return;
+        }
+
+        // Additional check: compare specific background values
+        const originalProps = extractCSSProperties(html);
+        const optimizedProps = extractCSSProperties(optimizedHtml);
+
+        const backgroundProps = ['backgroundColor', 'background-color', 'backgroundImage', 'background-image', 'background'];
+        let backgroundChanged = false;
+
+        for (const prop of backgroundProps) {
+          if (originalProps[prop] && originalProps[prop] !== optimizedProps[prop]) {
+            console.error(`🚨 AI changed ${prop} in ${id}: ${originalProps[prop]} → ${optimizedProps[prop]}`);
+            backgroundChanged = true;
+            break;
+          }
+        }
+
+        if (backgroundChanged) {
+          console.error(`🚨 Background properties modified by AI in ${id}! Using original HTML.`);
+          parentPort.postMessage({
+            success: true,
+            optimizedHtml: html,
+            id,
+            error: 'AI modified background properties - reverted to original'
+          });
+          return;
+        }
+
+        console.log(`✅ AI preserved backgrounds correctly for ${id}`);
+      }
+
+      parentPort.postMessage({
+        success: true,
+        optimizedHtml,
+        id
       });
     } catch (error) {
-      parentPort.postMessage({ 
-        success: false, 
-        error: error.message, 
-        id: workerData.id 
+      parentPort.postMessage({
+        success: false,
+        error: error.message,
+        id: workerData.id
       });
     }
   })();
-  
+
   return;
 }
 
@@ -1335,26 +940,36 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
   console.log(`✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
 
-  console.log('\n🎨 Processing bgLayers divs with enhanced preservation...');
+  console.log('\n🎨 Processing bgLayers divs with ENHANCED background color preservation...');
   const $ = cheerio.load(widgetsHtml);
   const bgLayerDivs = [];
   
   $('div[id^="bgLayers"]').each((index, element) => {
     const $element = $(element);
+    const html = $.html($element);
+    const hasBackground = hasBackgroundProperties(html);
+    
     bgLayerDivs.push({
       id: $element.attr('id'),
       element: element,
-      html: $.html($element)
+      html: html,
+      hasBackground: hasBackground,
+      isCritical: isCriticalBgLayerDiv(html)
     });
+    
+    // Log background detection for debugging
+    if (hasBackground) {
+      console.log(`🎨 ${$element.attr('id')} has background properties - will be preserved`);
+    }
   });
 
-  console.log(`Found ${bgLayerDivs.length} bgLayers divs`);
+  console.log(`Found ${bgLayerDivs.length} bgLayers divs (${bgLayerDivs.filter(d => d.hasBackground).length} with backgrounds)`);
   const bgTemplates = {};
 
   const bgLayerResults = await Promise.all(bgLayerDivs.map((divData, i) => {
     console.log(`\n🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${divData.id}`);
     
-    // Check size before sending to AI
+    // Enhanced size check
     const sizeInBytes = Buffer.byteLength(divData.html, 'utf8');
     if (sizeInBytes > 12000) {
       console.warn(`📏 Div ${divData.id} is too large (${sizeInBytes} bytes > 12000), saving intact`);
@@ -1363,12 +978,28 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
         success: true,
         html: divData.html,
         error: null,
-        skippedDueToSize: true
+        skippedDueToSize: true,
+        originalHtml: divData.html // Include original for validation
+      });
+    }
+    
+    // PRIORITY: Check for background properties first
+    if (divData.hasBackground) {
+      console.log(`🎨 ${divData.id} has background - applying MAXIMUM conservation`);
+      const conservativeResult = processBgLayerDiv(divData.html, divData.id);
+      return Promise.resolve({
+        id: divData.id,
+        success: true,
+        html: conservativeResult.html,
+        error: null,
+        conservative: true,
+        reason: conservativeResult.reason,
+        originalHtml: divData.html
       });
     }
     
     // Check if this is a critical bgLayer
-    if (isCriticalBgLayerDiv(divData.html)) {
+    if (divData.isCritical) {
       console.log(`🛡️ ${divData.id} identified as critical - applying minimal optimization only`);
       const conservativeResult = processBgLayerDiv(divData.html, divData.id);
       return Promise.resolve({
@@ -1376,10 +1007,13 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
         success: true,
         html: conservativeResult.html,
         error: null,
-        conservative: true
+        conservative: true,
+        reason: conservativeResult.reason,
+        originalHtml: divData.html
       });
     }
     
+    // Only send to AI if it's not critical and has no background
     return new Promise((resolve) => {
       const worker = new Worker(__filename, {
         workerData: {
@@ -1399,8 +1033,9 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
         resolve({
           id: divData.id,
           success: true,
-          html: divData.html, // Use original on timeout
-          error: 'Timeout - used original'
+          html: divData.html,
+          error: 'Timeout - used original',
+          originalHtml: divData.html
         });
       }, 180000); // 3 minute timeout
 
@@ -1411,7 +1046,8 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
           success: message.success,
           html: message.optimizedHtml || divData.html,
           error: message.error,
-          conservative: message.conservative
+          conservative: message.conservative,
+          originalHtml: divData.html // Always include original for validation
         });
       });
 
@@ -1421,8 +1057,9 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
         resolve({
           id: divData.id,
           success: true,
-          html: divData.html, // Use original on error
-          error: error.message
+          html: divData.html,
+          error: error.message,
+          originalHtml: divData.html
         });
       });
 
@@ -1435,15 +1072,31 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
     });
   }));
 
-  // Process bgLayer results with enhanced validation
+  // Enhanced bgLayer results processing with background validation
   bgLayerResults.forEach((result, i) => {
     const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
+    const originalHtml = bgLayerDivs[i].html;
+    
+    // Check if original has background properties
+    const originalHasBackground = hasBackgroundProperties(originalHtml);
     
     if (result.skippedDueToSize || result.conservative) {
       bgTemplates[`{{${bgKey}}}`] = result.html;
       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-      const reason = result.skippedDueToSize ? 'large size' : 'critical structure';
+      
+      const reason = result.skippedDueToSize ? 'large size' : 
+                    result.reason || 'critical structure';
       console.log(`🛡️ Protected ${result.id} due to ${reason} (${Buffer.byteLength(result.html, 'utf8')} bytes)`);
+      
+      // Verify background preservation for protected elements
+      if (originalHasBackground) {
+        const preservedHasBackground = hasBackgroundProperties(result.html);
+        if (preservedHasBackground) {
+          console.log(`✅ Background properties confirmed preserved in ${result.id}`);
+        } else {
+          console.error(`🚨 Background properties lost even in protected ${result.id}!`);
+        }
+      }
       return;
     }
     
@@ -1451,18 +1104,29 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
       ...result,
       originalDivCount: 3, // Always 3 nested divs in bgLayers
       optimizedDivCount: result.html ? (result.html.match(/<div/g) || []).length : 0,
-      hasBackgroundLayers: result.html.includes('background')
+      hasBackgroundLayers: hasBackgroundProperties(result.html),
+      originalHtml: originalHtml // Include for validation
     };
     
     const validatedResult = processOptimizationResult(enhancedResult, 'bgLayers');
     
     if (validatedResult.success && validatedResult.html) {
-      // Enhanced property preservation check with structural verification
-      const originalHtml = bgLayerDivs[i].html;
-      const optimizedHtml = validatedResult.html;
+      // CRITICAL: Enhanced background preservation check
+      const finalHtml = preserveCriticalBgLayerStructure(originalHtml, validatedResult.html);
       
-      // Use the enhanced preservation function
-      const finalHtml = preserveCriticalBgLayerStructure(originalHtml, optimizedHtml);
+      // Double-check background preservation after final processing
+      if (originalHasBackground) {
+        const finalHasBackground = hasBackgroundProperties(finalHtml);
+        if (!finalHasBackground) {
+          console.error(`🚨 EMERGENCY: Background lost in final processing for ${validatedResult.id}!`);
+          console.error('🚨 Falling back to original HTML');
+          bgTemplates[`{{${bgKey}}}`] = originalHtml;
+          $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
+          return;
+        } else {
+          console.log(`✅ Background properties confirmed in final HTML for ${validatedResult.id}`);
+        }
+      }
       
       if (finalHtml === originalHtml) {
         console.log(`🛡️ Used original HTML for ${validatedResult.id} due to critical property preservation`);
@@ -1473,14 +1137,23 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
       bgTemplates[`{{${bgKey}}}`] = finalHtml;
       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
     } else {
-      bgTemplates[`{{${bgKey}}}`] = bgLayerDivs[i].html;
+      bgTemplates[`{{${bgKey}}}`] = originalHtml;
       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
       console.error(`❌ Failed ${validatedResult.id}: ${validatedResult.error} - Using original HTML`);
     }
   });
 
+  // Final verification of all background templates
+  console.log('\n🔍 Final background verification:');
+  Object.entries(bgTemplates).forEach(([key, html]) => {
+    const hasBackground = hasBackgroundProperties(html);
+    console.log(`${key}: ${hasBackground ? '✅ HAS background' : '❌ no background'} (${html.length} bytes)`);
+  });
+
   const bgJsonFile = `bg_${sectionIndex}.json`;
   await fs.writeFile(path.join(outputDir, bgJsonFile), JSON.stringify(bgTemplates, null, 2));
+  
+  console.log(`📁 Background templates saved to ${bgJsonFile}`);
   
   const htmlWithBgPlaceholders = $.html();
   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
@@ -1757,7 +1430,8 @@ module.exports = {
   processOptimizationResult,
   isCriticalBgLayerDiv,
   preserveCriticalBgLayerStructure,
-  CRITICAL_BGLAYER_PROPS
+  CRITICAL_BGLAYER_PROPS,
+  ENHANCED_BGLAYERS_PROMPT
 };
 
 class EnhancedHtmlStyleProcessor {

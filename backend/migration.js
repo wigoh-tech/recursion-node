@@ -1613,7 +1613,7 @@ const { JSDOM } = require('jsdom');
 require('dotenv').config();
 const execPromise = promisify(exec);
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT =  3000;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -2239,209 +2239,625 @@ async function optimizeWithAI(html, id, customPrompt = null) {
   }
 }
 
+// async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
+//   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
+//   console.log('='.repeat(60));
+  
+//   // Step 1: Locate and read the widgets-extracted HTML file
+//   console.log(`🔍 Step 1: Locating widgets-extracted HTML for section ${sectionIndex}...`);
+//   const widgetsHtmlPath = path.join(outputDir, `widgets_extracted_${sectionIndex}.html`);
+  
+//   if (!await fs.access(widgetsHtmlPath).then(() => true).catch(() => false)) {
+//     console.error('❌ Error: Widgets-extracted HTML file not found');
+//     throw new Error(`Widgets-extracted HTML file not found at ${widgetsHtmlPath}`);
+//   }
+
+//   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
+//   console.log(`   ✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
+//   console.log('   - File:', widgetsHtmlPath);
+
+//   // Step 2: Extract ALL bgLayers divs and send to AI
+//   console.log('\n🎨 Step 2: Extracting and processing ALL bgLayers divs...');
+//   const $ = cheerio.load(widgetsHtml);
+  
+//   // Find all bgLayers divs
+//   const bgLayerDivs = [];
+//   $('div[id^="bgLayers"]').each((index, element) => {
+//     const $element = $(element);
+//     const id = $element.attr('id');
+//     bgLayerDivs.push({
+//       id: id,
+//       element: element,
+//       html: $.html($element)
+//     });
+//   });
+
+//   console.log(`   - Found ${bgLayerDivs.length} bgLayers divs to process`);
+
+//   // Process ALL bgLayers with OpenAI using specific bgLayers optimization
+//   const bgTemplates = {};
+//   const TIMEOUT = 300000;
+
+//   for (let i = 0; i < bgLayerDivs.length; i++) {
+//     const divData = bgLayerDivs[i];
+//     const { id, html } = divData;
+    
+//     console.log(`\n   🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${id}`);
+//     console.log(`   - Original size: ${html.length} bytes`);
+
+//     try {
+//       console.log('   ⚙️  Sending bgLayers to OpenAI for bare minimum...');
+//       const startTime = Date.now();
+      
+//       // Use specific bgLayers optimization
+//       const optimizedHtml = await Promise.race([
+//         optimizeBgLayersWithAI(html, id),
+//         new Promise((_, reject) => 
+//           setTimeout(() => reject(new Error('Timeout after 180 seconds')), TIMEOUT)
+//         )
+//       ]);
+      
+//       const duration = Date.now() - startTime;
+//       console.log(`   ⏱️  Completed in ${duration}ms`);
+      
+//       // Store optimized HTML with bg-01, bg-02 format
+//       const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
+//       bgTemplates[`{{${bgKey}}}`] = optimizedHtml;
+
+//       console.log(`   ✅ Optimized to ${optimizedHtml.length} bytes`);
+//       console.log(`   🔽 Reduction: ${Math.round((1 - (optimizedHtml.length / html.length)) * 100)}%`);
+      
+//       // Replace the original bgLayers div with placeholder
+//       $(divData.element).replaceWith(`{{${bgKey}}}`);
+      
+//     } catch (error) {
+//       console.error(`   ❌ OpenAI processing failed for ${id}: ${error.message}`);
+//       console.log('   ↪️  Using empty placeholder for this bgLayers');
+      
+//       const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
+//       bgTemplates[`{{${bgKey}}}`] = '';
+//       $(divData.element).replaceWith(`{{${bgKey}}}`);
+//     }
+//   }
+
+//   // Step 3: Save bgLayers JSON and HTML with bgLayers placeholders
+//   console.log('\n💾 Step 3: Saving bgLayers results and intermediate HTML...');
+  
+//   // Save bgLayers JSON
+//   const bgJsonFile = `bg_${sectionIndex}.json`;
+//   const bgJsonPath = path.join(outputDir, bgJsonFile);
+//   await fs.writeFile(bgJsonPath, JSON.stringify(bgTemplates, null, 2));
+//   console.log(`   ✅ Saved bgLayers JSON to: ${bgJsonPath}`);
+
+//   // Save HTML with bgLayers placeholders
+//   const htmlWithBgPlaceholders = $.html();
+//   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
+//   const bgPlaceholderHtmlPath = path.join(outputDir, bgPlaceholderHtmlFile);
+//   await fs.writeFile(bgPlaceholderHtmlPath, htmlWithBgPlaceholders);
+//   console.log(`   ✅ Saved HTML with bgLayers placeholders to: ${bgPlaceholderHtmlPath}`);
+
+//   // Step 4: Load the saved HTML and extract top-most divs
+//   console.log('\n📊 Step 4: Loading saved HTML and extracting top-most divs...');
+  
+//   // Read the saved HTML file with bgLayers placeholders
+//   const savedHtml = await fs.readFile(bgPlaceholderHtmlPath, 'utf8');
+//   const $saved = cheerio.load(savedHtml);
+  
+//   // Extract top-most div IDs (divs that are not nested inside other divs with IDs)
+//   const topMostDivs = [];
+//   $saved('div[id]').each((index, element) => {
+//     const $element = $saved(element);
+//     const id = $element.attr('id');
+    
+//     // Skip if this is a bgLayers placeholder or contains only placeholder content
+//     if (id && !id.startsWith('bgLayers')) {
+//       // Check if this div is not nested inside another div with an ID
+//       const parentWithId = $element.parents('div[id]').first();
+//       if (parentWithId.length === 0) {
+//         topMostDivs.push({
+//           id: id,
+//           element: element,
+//           html: $saved.html($element)
+//         });
+//       }
+//     }
+//   });
+
+//   console.log(`   - Found ${topMostDivs.length} top-most divs to process`);
+
+//   // Step 5: Send top-most divs to AI for bare minimum
+//   console.log('\n🤖 Step 5: Processing top-most divs with OpenAI...');
+  
+//   const componentTemplates = {};
+//   let processedCount = 0;
+
+//   for (const divData of topMostDivs) {
+//     const { id, html } = divData;
+//     processedCount++;
+    
+//     console.log(`\n   🔧 Processing top-most div ${processedCount}/${topMostDivs.length}: ${id}`);
+//     console.log(`   - Original size: ${html.length} bytes`);
+
+//     try {
+//       console.log('   ⚙️  Sending top-most div to OpenAI for bare minimum...');
+//       const startTime = Date.now();
+      
+//       // Use specific top-most div optimization
+//       const optimizedHtml = await Promise.race([
+//         optimizeTopMostWithAI(html, id),
+//         new Promise((_, reject) => 
+//           setTimeout(() => reject(new Error('Timeout after 180 seconds')), TIMEOUT)
+//         )
+//       ]);
+      
+//       const duration = Date.now() - startTime;
+//       console.log(`   ⏱️  Completed in ${duration}ms`);
+      
+//       // Store optimized HTML with template-2000+ format
+//       const templateKey = `template-${String(2000 + processedCount).padStart(4, '0')}`;
+//       componentTemplates[`{{${templateKey}}}`] = optimizedHtml;
+
+//       console.log(`   ✅ Optimized to ${optimizedHtml.length} bytes`);
+//       console.log(`   🔽 Reduction: ${Math.round((1 - (optimizedHtml.length / html.length)) * 100)}%`);
+      
+//       // Replace the original div with component placeholder
+//       $saved(divData.element).replaceWith(`{{${templateKey}}}`);
+      
+//     } catch (error) {
+//       console.error(`   ❌ OpenAI processing failed for ${id}: ${error.message}`);
+//       console.log('   ↪️  Using empty placeholder for this component');
+      
+//       const templateKey = `template-${String(2000 + processedCount).padStart(4, '0')}`;
+//       componentTemplates[`{{${templateKey}}}`] = '';
+//       $saved(divData.element).replaceWith(`{{${templateKey}}}`);
+//     }
+//   }
+
+//   // Step 6: Generate final bare minimum HTML
+//   console.log('\n✨ Step 6: Generating final bare minimum HTML...');
+//   const finalBareHtml = $saved.html();
+//   const finalSize = finalBareHtml.length;
+//   const originalSize = widgetsHtml.length;
+//   const sizeReduction = Math.round((1 - (finalSize / originalSize)) * 100);
+  
+//   console.log(`   - Original size: ${originalSize} bytes`);
+//   console.log(`   - Final bare HTML size: ${finalSize} bytes`);
+//   console.log(`   - Total reduction: ${sizeReduction}%`);
+//   console.log(`   - bgLayers processed: ${bgLayerDivs.length}`);
+//   console.log(`   - Top-most divs processed: ${processedCount}`);
+
+//   // Step 7: Save final files
+//   console.log('\n💾 Step 7: Saving final files...');
+  
+//   // Save final bare minimum HTML with all placeholders
+//   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
+//   const bareMinimumPath = path.join(outputDir, bareMinimumFile);
+//   await fs.writeFile(bareMinimumPath, finalBareHtml);
+  
+//   // Save components JSON as bareminimum_0.json
+//   const componentsJsonFile = `bareminimum_${sectionIndex}.json`;
+//   const componentsJsonPath = path.join(outputDir, componentsJsonFile);
+//   await fs.writeFile(componentsJsonPath, JSON.stringify(componentTemplates, null, 2));
+  
+//   console.log(`   ✅ Saved final bare minimum HTML to: ${bareMinimumPath}`);
+//   console.log(`   ✅ Saved components JSON to: ${componentsJsonPath}`);
+  
+//   console.log('\n🏁 Bare minimum HTML generation complete!');
+//   console.log('='.repeat(60));
+
+//   return {
+//     bareHtml: finalBareHtml,
+//     bareMinimumFile,
+//     bgJsonFile,
+//     componentsJsonFile,
+//     bgPlaceholderHtmlFile,
+//     bgTemplates,
+//     componentTemplates,
+//     stats: {
+//       originalSize,
+//       finalSize,
+//       sizeReduction,
+//       bgLayersProcessed: bgLayerDivs.length,
+//       topMostDivsProcessed: processedCount,
+//       totalComponentsProcessed: bgLayerDivs.length + processedCount
+//     }
+//   };
+// }
 async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
   console.log('='.repeat(60));
   
-  // Step 1: Locate and read the widgets-extracted HTML file
-  console.log(`🔍 Step 1: Locating widgets-extracted HTML for section ${sectionIndex}...`);
   const widgetsHtmlPath = path.join(outputDir, `widgets_extracted_${sectionIndex}.html`);
-  
   if (!await fs.access(widgetsHtmlPath).then(() => true).catch(() => false)) {
-    console.error('❌ Error: Widgets-extracted HTML file not found');
     throw new Error(`Widgets-extracted HTML file not found at ${widgetsHtmlPath}`);
   }
 
   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
-  console.log(`   ✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
-  console.log('   - File:', widgetsHtmlPath);
+  console.log(`✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
 
-  // Step 2: Extract ALL bgLayers divs and send to AI
-  console.log('\n🎨 Step 2: Extracting and processing ALL bgLayers divs...');
+  console.log('\n🎨 Processing bgLayers divs...');
   const $ = cheerio.load(widgetsHtml);
-  
-  // Find all bgLayers divs
   const bgLayerDivs = [];
+  
   $('div[id^="bgLayers"]').each((index, element) => {
     const $element = $(element);
-    const id = $element.attr('id');
     bgLayerDivs.push({
-      id: id,
+      id: $element.attr('id'),
       element: element,
       html: $.html($element)
     });
   });
 
-  console.log(`   - Found ${bgLayerDivs.length} bgLayers divs to process`);
-
-  // Process ALL bgLayers with OpenAI using specific bgLayers optimization
+  console.log(`Found ${bgLayerDivs.length} bgLayers divs`);
   const bgTemplates = {};
-  const TIMEOUT = 300000;
 
-  for (let i = 0; i < bgLayerDivs.length; i++) {
-    const divData = bgLayerDivs[i];
-    const { id, html } = divData;
+  const bgLayerResults = await Promise.all(bgLayerDivs.map((divData, i) => {
+    console.log(`\n🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${divData.id}`);
     
-    console.log(`\n   🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${id}`);
-    console.log(`   - Original size: ${html.length} bytes`);
-
-    try {
-      console.log('   ⚙️  Sending bgLayers to OpenAI for bare minimum...');
-      const startTime = Date.now();
-      
-      // Use specific bgLayers optimization
-      const optimizedHtml = await Promise.race([
-        optimizeBgLayersWithAI(html, id),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout after 180 seconds')), TIMEOUT)
-        )
-      ]);
-      
-      const duration = Date.now() - startTime;
-      console.log(`   ⏱️  Completed in ${duration}ms`);
-      
-      // Store optimized HTML with bg-01, bg-02 format
-      const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-      bgTemplates[`{{${bgKey}}}`] = optimizedHtml;
-
-      console.log(`   ✅ Optimized to ${optimizedHtml.length} bytes`);
-      console.log(`   🔽 Reduction: ${Math.round((1 - (optimizedHtml.length / html.length)) * 100)}%`);
-      
-      // Replace the original bgLayers div with placeholder
-      $(divData.element).replaceWith(`{{${bgKey}}}`);
-      
-    } catch (error) {
-      console.error(`   ❌ OpenAI processing failed for ${id}: ${error.message}`);
-      console.log('   ↪️  Using empty placeholder for this bgLayers');
-      
-      const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-      bgTemplates[`{{${bgKey}}}`] = '';
-      $(divData.element).replaceWith(`{{${bgKey}}}`);
+    // Check size before sending to AI
+    const sizeInBytes = Buffer.byteLength(divData.html, 'utf8');
+    if (sizeInBytes > 12000) {
+      console.warn(`📏 Div ${divData.id} is too large (${sizeInBytes} bytes > 12000), saving intact`);
+      return Promise.resolve({
+        id: divData.id,
+        success: true,
+        html: divData.html, // Keep original HTML
+        error: null,
+        skippedDueToSize: true
+      });
     }
-  }
-
-  // Step 3: Save bgLayers JSON and HTML with bgLayers placeholders
-  console.log('\n💾 Step 3: Saving bgLayers results and intermediate HTML...');
-  
-  // Save bgLayers JSON
-  const bgJsonFile = `bg_${sectionIndex}.json`;
-  const bgJsonPath = path.join(outputDir, bgJsonFile);
-  await fs.writeFile(bgJsonPath, JSON.stringify(bgTemplates, null, 2));
-  console.log(`   ✅ Saved bgLayers JSON to: ${bgJsonPath}`);
-
-  // Save HTML with bgLayers placeholders
-  const htmlWithBgPlaceholders = $.html();
-  const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
-  const bgPlaceholderHtmlPath = path.join(outputDir, bgPlaceholderHtmlFile);
-  await fs.writeFile(bgPlaceholderHtmlPath, htmlWithBgPlaceholders);
-  console.log(`   ✅ Saved HTML with bgLayers placeholders to: ${bgPlaceholderHtmlPath}`);
-
-  // Step 4: Load the saved HTML and extract top-most divs
-  console.log('\n📊 Step 4: Loading saved HTML and extracting top-most divs...');
-  
-  // Read the saved HTML file with bgLayers placeholders
-  const savedHtml = await fs.readFile(bgPlaceholderHtmlPath, 'utf8');
-  const $saved = cheerio.load(savedHtml);
-  
-  // Extract top-most div IDs (divs that are not nested inside other divs with IDs)
-  const topMostDivs = [];
-  $saved('div[id]').each((index, element) => {
-    const $element = $saved(element);
-    const id = $element.attr('id');
     
-    // Skip if this is a bgLayers placeholder or contains only placeholder content
-    if (id && !id.startsWith('bgLayers')) {
-      // Check if this div is not nested inside another div with an ID
-      const parentWithId = $element.parents('div[id]').first();
-      if (parentWithId.length === 0) {
-        topMostDivs.push({
-          id: id,
-          element: element,
-          html: $saved.html($element)
+    return new Promise((resolve) => {
+      const worker = new Worker(__filename, {
+        workerData: {
+          html: divData.html,
+          id: divData.id,
+          promptType: 'bgLayers'
+        },
+        resourceLimits: {
+          maxOldGenerationSizeMb: 256,
+          maxYoungGenerationSizeMb: 256
+        }
+      });
+
+      const timeout = setTimeout(() => {
+        worker.terminate();
+        console.error(`⌛ Timeout processing ${divData.id}`);
+        resolve({
+          id: divData.id,
+          success: false,
+          error: 'Timeout',
+          html: ''
         });
+      }, 180000); // 3 minute timeout
+
+      worker.on('message', (message) => {
+        clearTimeout(timeout);
+        resolve({
+          id: divData.id,
+          success: message.success,
+          html: message.optimizedHtml || '',
+          error: message.error
+        });
+      });
+
+      worker.on('error', (error) => {
+        clearTimeout(timeout);
+        console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
+        resolve({
+          id: divData.id,
+          success: false,
+          error: error.message,
+          html: ''
+        });
+      });
+
+      worker.on('exit', (code) => {
+        clearTimeout(timeout);
+        if (code !== 0) {
+          console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
+        }
+      });
+    });
+  }));
+
+  // Process bgLayer results with Zod validation
+  bgLayerResults.forEach((result, i) => {
+    const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
+    
+    if (result.skippedDueToSize) {
+      bgTemplates[`{{${bgKey}}}`] = result.html;
+      $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
+      console.log(`📦 Saved large div ${result.id} intact (${Buffer.byteLength(result.html, 'utf8')} bytes)`);
+      return;
+    }
+    
+    const enhancedResult = {
+      ...result,
+      originalDivCount: 3, // Always 3 nested divs in bgLayers
+      optimizedDivCount: result.html ? (result.html.match(/<div/g) || []).length : 0
+    };
+    
+    const validatedResult = processOptimizationResult(enhancedResult, 'bgLayers');
+    
+    if (validatedResult.success && validatedResult.html) {
+      // Check property preservation
+      const preservation = checkPropertyPreservation(
+        bgLayerDivs[i].html, 
+        validatedResult.html,
+        ['backgroundColor', 'backgroundImage', 'position', 'zIndex']
+      );
+      
+      if (preservation.hasLostCriticalProps) {
+        console.warn(`⚠️ ${validatedResult.id} lost critical properties:`, preservation.lostProperties);
+        if (preservation.lostProperties.includes('backgroundColor') || 
+            preservation.lostProperties.includes('backgroundImage')) {
+          console.warn(`🔄 Using original HTML for ${validatedResult.id} due to background property loss`);
+          bgTemplates[`{{${bgKey}}}`] = bgLayerDivs[i].html;
+        } else {
+          bgTemplates[`{{${bgKey}}}`] = validatedResult.html;
+        }
+      } else {
+        bgTemplates[`{{${bgKey}}}`] = validatedResult.html;
+        console.log(`✅ Optimized ${validatedResult.id} (${validatedResult.html.length} bytes) - Preserved ${preservation.preservedProperties.length} properties`);
       }
+      
+      $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
+    } else {
+      bgTemplates[`{{${bgKey}}}`] = bgLayerDivs[i].html;
+      $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
+      console.error(`❌ Failed ${validatedResult.id}: ${validatedResult.error} - Using original HTML`);
     }
   });
 
-  console.log(`   - Found ${topMostDivs.length} top-most divs to process`);
-
-  // Step 5: Send top-most divs to AI for bare minimum
-  console.log('\n🤖 Step 5: Processing top-most divs with OpenAI...');
+  const bgJsonFile = `bg_${sectionIndex}.json`;
+  await fs.writeFile(path.join(outputDir, bgJsonFile), JSON.stringify(bgTemplates, null, 2));
   
-  const componentTemplates = {};
-  let processedCount = 0;
+  const htmlWithBgPlaceholders = $.html();
+  const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
+  await fs.writeFile(path.join(outputDir, bgPlaceholderHtmlFile), htmlWithBgPlaceholders);
 
-  for (const divData of topMostDivs) {
-    const { id, html } = divData;
-    processedCount++;
+  function hasFlexOrGridProperties(element) {
+    const $element = $(element);
+    const style = $element.attr('style') || '';
+    const className = $element.attr('class') || '';
     
-    console.log(`\n   🔧 Processing top-most div ${processedCount}/${topMostDivs.length}: ${id}`);
-    console.log(`   - Original size: ${html.length} bytes`);
+    const hasFlexInline = /display\s*:\s*(flex|inline-flex)/i.test(style) || 
+                         /flex[\s-]/i.test(style);
+    const hasGridInline = /display\s*:\s*(grid|inline-grid)/i.test(style) || 
+                         /grid[\s-]/i.test(style);
+    
+    const hasFlexClass = /flex|d-flex|display-flex/i.test(className);
+    const hasGridClass = /grid|d-grid|display-grid/i.test(className);
+    
+    return hasFlexInline || hasGridInline || hasFlexClass || hasGridClass;
+  }
 
-    try {
-      console.log('   ⚙️  Sending top-most div to OpenAI for bare minimum...');
-      const startTime = Date.now();
-      
-      // Use specific top-most div optimization
-      const optimizedHtml = await Promise.race([
-        optimizeTopMostWithAI(html, id),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout after 180 seconds')), TIMEOUT)
-        )
-      ]);
-      
-      const duration = Date.now() - startTime;
-      console.log(`   ⏱️  Completed in ${duration}ms`);
-      
-      // Store optimized HTML with template-2000+ format
-      const templateKey = `template-${String(2000 + processedCount).padStart(4, '0')}`;
-      componentTemplates[`{{${templateKey}}}`] = optimizedHtml;
+  function containsOnlyWidgets(element) {
+    const $element = $(element);
+    const childDivs = $element.find('div[id]');
+    
+    if (childDivs.length === 0) {
+      const id = $element.attr('id');
+      return id && (id.includes('widget') || id.includes('Widget'));
+    }
+    
+    let allChildrenAreWidgets = true;
+    childDivs.each((index, childElement) => {
+      const childId = $(childElement).attr('id');
+      if (!childId || (!childId.includes('widget') && !childId.includes('Widget'))) {
+        allChildrenAreWidgets = false;
+        return false;
+      }
+    });
+    
+    return allChildrenAreWidgets;
+  }
 
-      console.log(`   ✅ Optimized to ${optimizedHtml.length} bytes`);
-      console.log(`   🔽 Reduction: ${Math.round((1 - (optimizedHtml.length / html.length)) * 100)}%`);
+  function getNestingDepth(element, $context) {
+    let depth = 0;
+    let current = $context(element);
+    while (current.parent('div[id]').length > 0) {
+      current = current.parent('div[id]').first();
+      depth++;
+    }
+    return depth;
+  }
+
+  console.log('\n📊 Processing flex/grid divs (innermost first)...');
+  let $saved = cheerio.load(htmlWithBgPlaceholders);
+  const componentTemplates = {};
+  let templateCounter = 2001;
+  
+  let processedInThisRound = true;
+  let totalProcessed = 0;
+  
+  while (processedInThisRound) {
+    processedInThisRound = false;
+    const flexGridDivs = [];
+    
+    $saved('div[id]').each((index, element) => {
+      const $element = $saved(element);
+      const id = $element.attr('id');
       
-      // Replace the original div with component placeholder
-      $saved(divData.element).replaceWith(`{{${templateKey}}}`);
+      if (id && id.startsWith('bgLayers')) {
+        return;
+      }
       
-    } catch (error) {
-      console.error(`   ❌ OpenAI processing failed for ${id}: ${error.message}`);
-      console.log('   ↪️  Using empty placeholder for this component');
+      if ($saved.html($element).includes('{{template-')) {
+        return;
+      }
       
-      const templateKey = `template-${String(2000 + processedCount).padStart(4, '0')}`;
-      componentTemplates[`{{${templateKey}}}`] = '';
-      $saved(divData.element).replaceWith(`{{${templateKey}}}`);
+      if (id && hasFlexOrGridProperties(element)) {
+        if (!containsOnlyWidgets(element)) {
+          flexGridDivs.push({
+            id: id,
+            element: element,
+            html: $saved.html($element),
+            depth: getNestingDepth(element, $saved)
+          });
+        } else {
+          console.log(`🚫 Skipping widget-only flex/grid div: ${id}`);
+        }
+      }
+    });
+
+    if (flexGridDivs.length === 0) {
+      break;
+    }
+
+    flexGridDivs.sort((a, b) => b.depth - a.depth);
+    
+    console.log(`\n🔄 Round ${totalProcessed > 0 ? Math.floor(totalProcessed/10) + 1 : 1}: Found ${flexGridDivs.length} flex/grid divs`);
+    flexGridDivs.forEach(div => {
+      console.log(`   📐 ${div.id} (depth: ${div.depth})`);
+    });
+
+    const flexGridResults = await Promise.all(flexGridDivs.map(async (divData, i) => {
+      console.log(`\n🔧 Processing flex/grid div ${i + 1}/${flexGridDivs.length}: ${divData.id} (depth: ${divData.depth})`);
+      
+      // Check size before sending to AI
+      const sizeInBytes = Buffer.byteLength(divData.html, 'utf8');
+      if (sizeInBytes > 12000) {
+        console.warn(`📏 Div ${divData.id} is too large (${sizeInBytes} bytes > 12000), saving intact`);
+        return Promise.resolve({
+          id: divData.id,
+          success: true,
+          html: divData.html, // Keep original HTML
+          error: null,
+          skippedDueToSize: true
+        });
+      }
+      
+      return new Promise((resolve) => {
+        const worker = new Worker(__filename, {
+          workerData: {
+            html: divData.html,
+            id: divData.id,
+            promptType: 'flexGrid'
+          },
+          resourceLimits: {
+            maxOldGenerationSizeMb: 512,
+            maxYoungGenerationSizeMb: 512,
+            codeRangeSizeMb: 16,
+            stackSizeMb: 4
+          }
+        });
+
+        const timeout = setTimeout(() => {
+          worker.terminate();
+          console.error(`⌛ Timeout processing ${divData.id}`);
+          resolve({
+            id: divData.id,
+            success: false,
+            error: 'Timeout',
+            html: ''
+          });
+        }, 300000); // 5 minute timeout
+
+        worker.on('message', (message) => {
+          clearTimeout(timeout);
+          resolve({
+            id: divData.id,
+            success: message.success,
+            html: message.optimizedHtml || '',
+            error: message.error
+          });
+        });
+
+        worker.on('error', (error) => {
+          clearTimeout(timeout);
+          console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
+          resolve({
+            id: divData.id,
+            success: false,
+            error: error.message,
+            html: ''
+          });
+        });
+
+        worker.on('exit', (code) => {
+          clearTimeout(timeout);
+          if (code !== 0) {
+            console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
+          }
+        });
+      });
+    }));
+
+    // Process flexGrid results with Zod validation
+    flexGridResults.forEach((result, i) => {
+      const templateKey = `template-${String(templateCounter).padStart(4, '0')}`;
+      const originalHtml = flexGridDivs[i].html;
+      
+      if (result.skippedDueToSize) {
+        componentTemplates[`{{${templateKey}}}`] = result.html;
+        $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
+        console.log(`📦 Saved large div ${result.id} → {{${templateKey}}} intact (${Buffer.byteLength(result.html, 'utf8')} bytes)`);
+        processedInThisRound = true;
+        totalProcessed++;
+        templateCounter++;
+        return;
+      }
+      
+      const enhancedResult = {
+        ...result,
+        originalDivCount: (originalHtml.match(/<div/g) || []).length,
+        optimizedDivCount: result.html ? (result.html.match(/<div/g) || []).length : 0,
+        depth: flexGridDivs[i].depth
+      };
+      
+      const validatedResult = processOptimizationResult(enhancedResult, 'flexGrid');
+      
+      if (validatedResult.success && validatedResult.html) {
+        // Check property preservation
+        const preservation = checkPropertyPreservation(
+          originalHtml,
+          validatedResult.html,
+          ['display', 'flexDirection', 'justifyContent', 'alignItems', 'gridTemplateColumns', 'gridTemplateRows', 'gap', 'position', 'top', 'left', 'right', 'bottom', 'width', 'height', 'margin', 'padding']
+        );
+
+        if (preservation.hasLostCriticalProps) {
+          console.warn(`⚠️ ${validatedResult.id} lost critical properties:`, preservation.lostProperties);
+          const criticalLayoutProps = ['display', 'flexDirection', 'gridTemplateColumns', 'gridTemplateRows'];
+          if (preservation.lostProperties.some(prop => criticalLayoutProps.includes(prop))) {
+            console.error(`❌ Critical layout property lost for ${validatedResult.id}. Using original HTML.`);
+            componentTemplates[`{{${templateKey}}}`] = originalHtml;
+          } else {
+            componentTemplates[`{{${templateKey}}}`] = validatedResult.html;
+          }
+        } else {
+          componentTemplates[`{{${templateKey}}}`] = validatedResult.html;
+        }
+
+        $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
+        console.log(`✅ Optimized ${validatedResult.id} → {{${templateKey}}} (${validatedResult.html.length} bytes) - Preserved ${preservation.preservedProperties.length} properties`);
+        processedInThisRound = true;
+        totalProcessed++;
+      } else {
+        componentTemplates[`{{${templateKey}}}`] = originalHtml;
+        $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
+        console.error(`❌ Failed ${validatedResult.id}: ${validatedResult.error} - Using original HTML`);
+      }
+      
+      templateCounter++;
+    });
+    
+    if (processedInThisRound) {
+      $saved = cheerio.load($saved.html());
     }
   }
 
-  // Step 6: Generate final bare minimum HTML
-  console.log('\n✨ Step 6: Generating final bare minimum HTML...');
-  const finalBareHtml = $saved.html();
-  const finalSize = finalBareHtml.length;
-  const originalSize = widgetsHtml.length;
-  const sizeReduction = Math.round((1 - (finalSize / originalSize)) * 100);
-  
-  console.log(`   - Original size: ${originalSize} bytes`);
-  console.log(`   - Final bare HTML size: ${finalSize} bytes`);
-  console.log(`   - Total reduction: ${sizeReduction}%`);
-  console.log(`   - bgLayers processed: ${bgLayerDivs.length}`);
-  console.log(`   - Top-most divs processed: ${processedCount}`);
+  console.log(`\n🎯 Completed processing ${totalProcessed} flex/grid divs in total`);
 
-  // Step 7: Save final files
-  console.log('\n💾 Step 7: Saving final files...');
-  
-  // Save final bare minimum HTML with all placeholders
+  // Save final output
+  const finalBareHtml = $saved.html();
   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-  const bareMinimumPath = path.join(outputDir, bareMinimumFile);
-  await fs.writeFile(bareMinimumPath, finalBareHtml);
+  await fs.writeFile(path.join(outputDir, bareMinimumFile), finalBareHtml);
   
-  // Save components JSON as bareminimum_0.json
   const componentsJsonFile = `bareminimum_${sectionIndex}.json`;
-  const componentsJsonPath = path.join(outputDir, componentsJsonFile);
-  await fs.writeFile(componentsJsonPath, JSON.stringify(componentTemplates, null, 2));
-  
-  console.log(`   ✅ Saved final bare minimum HTML to: ${bareMinimumPath}`);
-  console.log(`   ✅ Saved components JSON to: ${componentsJsonPath}`);
-  
+  await fs.writeFile(path.join(outputDir, componentsJsonFile), JSON.stringify(componentTemplates, null, 2));
+
   console.log('\n🏁 Bare minimum HTML generation complete!');
   console.log('='.repeat(60));
 
@@ -2452,15 +2868,7 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
     componentsJsonFile,
     bgPlaceholderHtmlFile,
     bgTemplates,
-    componentTemplates,
-    stats: {
-      originalSize,
-      finalSize,
-      sizeReduction,
-      bgLayersProcessed: bgLayerDivs.length,
-      topMostDivsProcessed: processedCount,
-      totalComponentsProcessed: bgLayerDivs.length + processedCount
-    }
+    componentTemplates
   };
 }
 
@@ -2758,87 +3166,6 @@ async function assembleFinalWebsite(sectionIndex, outputDir) {
         throw error;
     }
 }
-async function processSectionRecursive(sectionIndex, sectionFiles, outputDir, globalTemplates, processedSections) {
-    if (sectionIndex >= sectionFiles.length) {
-        return {
-            sectionFiles,
-            processedSections,
-            globalTemplates,
-            summary: {
-                totalSections: sectionFiles.length,
-                successfulSections: processedSections.filter(s => !s.failed).length,
-                failedSections: processedSections.filter(s => s.failed).length,
-                averageCompression: processedSections.filter(s => !s.failed).length > 0
-                    ? (processedSections.filter(s => !s.failed).reduce((sum, s) => sum + parseFloat(s.stats?.compressionRatio || '0'), 0) / processedSections.filter(s => !s.failed).length).toFixed(1) + '%'
-                    : '0%'
-            }
-        };
-    }
-
-    const section = sectionFiles[sectionIndex];
-    try {
-        const sectionHtml = await fs.readFile(path.join(outputDir, section.htmlFile), 'utf8');
-        const computedData = JSON.parse(await fs.readFile(path.join(outputDir, section.computedFile), 'utf8'));
-        const styleProcessor = new EnhancedHtmlStyleProcessor();
-        
-        // Step 1: Process inline layout styles
-        const step1Result = await styleProcessor.processHtml(sectionHtml, computedData, outputDir, section.index);
-        
-        // Step 2: Extract widgets from the HTML (now step 2 instead of step 3)
-        const step2Result = await extractWidgetsFromHtml(step1Result.styledHtml, section.index, outputDir);
-        
-        // Step 3: Generate bare minimum HTML (now step 3 instead of step 2)
-        const step3Result = await generateBareMinimumHtml(section.index, step2Result.modifiedHtml, outputDir);
-        
-        // Step 4: Assemble final website
-        const step4Result = await assembleFinalWebsite(section.index, outputDir);
-        
-        const sectionData = {
-            index: section.index,
-            html: step4Result.finalHtml,
-            completed: true,
-            widgets: step2Result.widgets || {}
-        };
-        
-        allSections.push(sectionData);
-        processedSections.push({
-            index: section.index,
-            sectionKey: Object.keys(computedData)[0] || `section_${section.index}`,
-            files: {
-                original: section.htmlFile,
-                computed: section.computedFile,
-                layoutInline: step1Result.layoutInlineFile,
-                bareMinimum: step3Result.bareMinimumFile,
-                widgets: step2Result.widgetsFile,
-                widgetsHtml: step2Result.htmlOutputFile,
-                final: step4Result.finalFile
-            },
-            stats: {
-                originalSize: sectionHtml.length,
-                finalSize: step4Result.finalHtml.length,
-                compressionRatio: ((sectionHtml.length - step4Result.finalHtml.length) / sectionHtml.length * 100).toFixed(1) + '%',
-                widgetsExtracted: step2Result.widgets ? Object.keys(step2Result.widgets).length : 0
-            }
-        });
-        
-        await updateBrowserDisplay(outputDir, section.index === 0);
-        return processSectionRecursive(sectionIndex + 1, sectionFiles, outputDir, globalTemplates, processedSections);
-    } catch (error) {
-        processedSections.push({
-            index: section.index,
-            error: error.message,
-            failed: true
-        });
-        return processSectionRecursive(sectionIndex + 1, sectionFiles, outputDir, globalTemplates, processedSections);
-    }
-}
-
-async function processAllSections(rawHtmlContent, computedStyles, outputDir) {
-    allSections = [];
-    browserProcess = null;
-    const sectionFiles = await extractAndSaveSections(rawHtmlContent, computedStyles, outputDir);
-    return processSectionRecursive(0, sectionFiles, outputDir, [], []);
-}
 async function updateBrowserDisplay(outputDir, shouldOpenBrowser = false) {
     if (allSections.length === 0) {
         console.log('No sections to display');
@@ -2931,6 +3258,89 @@ async function updateBrowserDisplay(outputDir, shouldOpenBrowser = false) {
     }
 }
 
+async function processSectionRecursive(sectionIndex, sectionFiles, outputDir, globalTemplates, processedSections) {
+    if (sectionIndex >= sectionFiles.length) {
+        return {
+            sectionFiles,
+            processedSections,
+            globalTemplates,
+            summary: {
+                totalSections: sectionFiles.length,
+                successfulSections: processedSections.filter(s => !s.failed).length,
+                failedSections: processedSections.filter(s => s.failed).length,
+                averageCompression: processedSections.filter(s => !s.failed).length > 0
+                    ? (processedSections.filter(s => !s.failed).reduce((sum, s) => sum + parseFloat(s.stats?.compressionRatio || '0'), 0) / processedSections.filter(s => !s.failed).length).toFixed(1) + '%'
+                    : '0%'
+            }
+        };
+    }
+
+    const section = sectionFiles[sectionIndex];
+    try {
+        const sectionHtml = await fs.readFile(path.join(outputDir, section.htmlFile), 'utf8');
+        const computedData = JSON.parse(await fs.readFile(path.join(outputDir, section.computedFile), 'utf8'));
+        const styleProcessor = new EnhancedHtmlStyleProcessor();
+        
+        // Step 1: Process inline layout styles
+        const step1Result = await styleProcessor.processHtml(sectionHtml, computedData, outputDir, section.index);
+        
+        // Step 2: Extract widgets from the HTML (now step 2 instead of step 3)
+        const step2Result = await extractWidgetsFromHtml(step1Result.styledHtml, section.index, outputDir);
+        
+        // Step 3: Generate bare minimum HTML (now step 3 instead of step 2)
+        const step3Result = await generateBareMinimumHtml(section.index, step2Result.modifiedHtml, outputDir);
+        
+        // Step 4: Assemble final website
+        const step4Result = await assembleFinalWebsite(section.index, outputDir);
+        
+        const sectionData = {
+            index: section.index,
+            html: step4Result.finalHtml,
+            completed: true,
+            widgets: step2Result.widgets || {}
+        };
+        
+        allSections.push(sectionData);
+        processedSections.push({
+            index: section.index,
+            sectionKey: Object.keys(computedData)[0] || `section_${section.index}`,
+            files: {
+                original: section.htmlFile,
+                computed: section.computedFile,
+                layoutInline: step1Result.layoutInlineFile,
+                bareMinimum: step3Result.bareMinimumFile,
+                widgets: step2Result.widgetsFile,
+                widgetsHtml: step2Result.htmlOutputFile,
+                final: step4Result.finalFile
+            },
+            stats: {
+                originalSize: sectionHtml.length,
+                finalSize: step4Result.finalHtml.length,
+                compressionRatio: ((sectionHtml.length - step4Result.finalHtml.length) / sectionHtml.length * 100).toFixed(1) + '%',
+                widgetsExtracted: step2Result.widgets ? Object.keys(step2Result.widgets).length : 0
+            }
+        });
+        
+        await updateBrowserDisplay(outputDir, section.index === 0);
+        return processSectionRecursive(sectionIndex + 1, sectionFiles, outputDir, globalTemplates, processedSections);
+    } catch (error) {
+        processedSections.push({
+            index: section.index,
+            error: error.message,
+            failed: true
+        });
+        return processSectionRecursive(sectionIndex + 1, sectionFiles, outputDir, globalTemplates, processedSections);
+    }
+}
+
+async function processAllSections(rawHtmlContent, computedStyles, outputDir) {
+    allSections = [];
+    browserProcess = null;
+    const sectionFiles = await extractAndSaveSections(rawHtmlContent, computedStyles, outputDir);
+    return processSectionRecursive(0, sectionFiles, outputDir, [], []);
+}
+
+
 app.post('/api/migrate', async (req, res) => {
     try {
         const outputDir = path.join(__dirname, 'output');
@@ -2993,7 +3403,7 @@ app.get('/api/status', async (req, res) => {
 
 app.get('/api/files', async (req, res) => {
     try {
-        const outputDir = path.join(__dirname, 'output');
+        const outputDir = path.join(__dirname, 'output1');
         let files = [];
         try {
             const dirContents = await fs.readdir(outputDir);

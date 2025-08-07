@@ -543,70 +543,21 @@ REMEMBER:
 OUTPUT ONLY THE OPTIMIZED HTML:
 `;
 // TOP-MOST DIVS OPTIMIZATION PROMPT
-// const TOPMOST_OPTIMIZATION_PROMPT = `
-// You are a Wix HTML optimization expert. Carefully reduce this HTML while maintaining identical rendering.
-
-// STRICT RULES:
-// 1. OUTPUT ONLY THE OPTIMIZED HTML
-// 2. Merge nested divs with identical dimensions/positioning
-// 3. Remove empty divs that only contain other divs
-// 4. Preserve all data-* attributes and Wix classes
-// 5. Combine style properties using shorthand
-// 6. Keep all functional attributes (id, class)
-// 7. Maintain pixel-perfect layout
-
-// CRITICAL: The output must render exactly the same as input.
-
-// TOP-MOST DIV EXAMPLE INPUT:
-// <div id="comp-irqduxcu" class="comp-irqduxcu YzqVZ wixui-column-strip__column" style="bottom: 0px; flex-basis: 0%; flex-grow: 325; height: 421px; left: 0px; min-height: auto; position: relative; right: 0px; top: 0px; width: 641.711px;">
-//   <div id="bgLayers_comp-irqduxcu" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxcu" class="MW5IZ" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px; width: 641.711px;">
-//     <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px; width: 641.711px;"></div>
-//     <div id="bgMedia_comp-irqduxcu" data-motion-part="BG_MEDIA comp-irqduxcu" class="VgO9Yg" style="height: 421px; width: 641.711px"></div>
-//   </div>
-//   <div data-mesh-id="comp-irqduxcuinlineContent" data-testid="inline-content" class="" style="bottom: 0px; height: 421px; left: 0px; position: relative; right: 0px; top: 0px; width: 641.711px;">
-//     <div data-mesh-id="comp-irqduxcuinlineContent-gridContainer" data-testid="mesh-container-content" style="display: grid; grid-template-columns: 641.711px; grid-template-rows: 150px 42.5px 228.5px; height: 421px; min-height: 421px; width: 641.711px;">
-//       <div id="comp-isejheta" class="comp-isejheta wixui-vector-image" style="align-self: start; bottom: 0px; grid-column-end: 2; grid-column-start: 1; grid-row-end: 2; grid-row-start: 1; height: 48px; left: 143px; min-height: auto; min-width: auto; position: relative; right: -143px; top: 0px; width: 50px;">
-//         <div data-testid="svgRoot-comp-isejheta" class="AKxYR5 VZMYf comp-isejheta" style="bottom: 0px; height: 48px; left: 0px; position: absolute; right: 0px; top: 0px; width: 50px;">
-//           {{template-2001}}
-//         </div>
-//       </div>
-//       <div id="comp-irqduxd4" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxd4 wixui-rich-text" data-testid="richTextElement" style="align-self: start; bottom: 0px; grid-column-end: 2; grid-column-start: 1; grid-row-end: 3; grid-row-start: 2; height: 23.5px; left: 72px; min-height: auto; min-width: auto; position: relative; right: -72px; top: 0px; width: 193px;">
-//         {{template-2002}}
-//       </div>
-//       <div id="comp-irqduxcy" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxcy wixui-rich-text" data-testid="richTextElement" style="align-self: start; bottom: 0px; grid-column-end: 2; grid-column-start: 1; grid-row-end: 4; grid-row-start: 3; height: 108.812px; left: 23px; min-height: auto; min-width: auto; position: relative; right: -23px; top: 0px; width: 288px;">
-//         {{template-2003}}
-//       </div>
-//     </div>
-//   </div>
-// </div>
-
-// TOP-MOST DIV EXAMPLE OUTPUT:
-// <div id="comp-irqduxcu" data-mesh-id="comp-irqduxcuinlineContent-gridContainer" class="comp-irqduxcu YzqVZ wixui-column-strip__column" style="bottom:0;flex-basis:0%;flex-grow:325;height:421px;left:0;min-height:auto;position:relative;right:0;top:0;width:641.711px;display:grid;grid-template-columns:641.711px;grid-template-rows:150px 42.5px 228.5px;min-height:421px">
-// {{bg-01}}
-// <div id="comp-isejheta" data-testid="svgRoot-comp-isejheta" class="comp-isejheta wixui-vector-image AKxYR5 VZMYf" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:2;grid-row-start:1;height:48px;left:143px;min-height:auto;min-width:auto;position:relative;right:-143px;top:0;width:50px">{{template-2001}}</div>
-// <div id="comp-irqduxd4" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxd4 wixui-rich-text" data-testid="richTextElement" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:3;grid-row-start:2;height:23.5px;left:72px;min-height:auto;min-width:auto;position:relative;right:-72px;top:0;width:193px">{{template-2002}}</div>
-// <div id="comp-irqduxcy" class="HcOXKn SxM0TO QxJLC3 lq2cno YQcXTT comp-irqduxcy wixui-rich-text" data-testid="richTextElement" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:4;grid-row-start:3;height:108.812px;left:23px;min-height:auto;min-width:auto;position:relative;right:-23px;top:0;width:288px">{{template-2003}}</div>
-// </div>
-
-// HTML TO OPTIMIZE:
-// `;
-
 const TOPMOST_OPTIMIZATION_PROMPT = `
-You are a Wix HTML optimization expert. Carefully reduce this HTML while maintaining identical rendering and minimizing the number of divs.
+You are a Wix HTML optimization expert. Carefully reduce this HTML while maintaining identical rendering.
 
 STRICT RULES:
-1. Aim to minimize the number of div elements in the output
-2. Merge nested divs with identical dimensions/positioning to reduce the total count
+1. OUTPUT ONLY THE OPTIMIZED HTML
+2. Merge nested divs with identical dimensions/positioning
 3. Remove empty divs that only contain other divs
 4. Preserve all data-* attributes and Wix classes
 5. Combine style properties using shorthand
 6. Keep all functional attributes (id, class)
 7. Maintain pixel-perfect layout
-8. OUTPUT ONLY THE OPTIMIZED HTML
 
 CRITICAL: The output must render exactly the same as input.
 
- DIV EXAMPLE INPUT:
+TOP-MOST DIV EXAMPLE INPUT:
 <div id="comp-irqduxcu" class="comp-irqduxcu YzqVZ wixui-column-strip__column" style="bottom: 0px; flex-basis: 0%; flex-grow: 325; height: 421px; left: 0px; min-height: auto; position: relative; right: 0px; top: 0px; width: 641.711px;">
   <div id="bgLayers_comp-irqduxcu" data-hook="bgLayers" data-motion-part="BG_LAYER comp-irqduxcu" class="MW5IZ" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px; width: 641.711px;">
     <div data-testid="colorUnderlay" class="LWbAav Kv1aVt" style="bottom: 0px; height: 421px; left: 0px; position: absolute; right: 0px; top: 0px; width: 641.711px;"></div>
@@ -628,7 +579,8 @@ CRITICAL: The output must render exactly the same as input.
     </div>
   </div>
 </div>
- DIV EXAMPLE OUTPUT:
+
+TOP-MOST DIV EXAMPLE OUTPUT:
 <div id="comp-irqduxcu" data-mesh-id="comp-irqduxcuinlineContent-gridContainer" class="comp-irqduxcu YzqVZ wixui-column-strip__column" style="bottom:0;flex-basis:0%;flex-grow:325;height:421px;left:0;min-height:auto;position:relative;right:0;top:0;width:641.711px;display:grid;grid-template-columns:641.711px;grid-template-rows:150px 42.5px 228.5px;min-height:421px">
 {{bg-01}}
 <div id="comp-isejheta" data-testid="svgRoot-comp-isejheta" class="comp-isejheta wixui-vector-image AKxYR5 VZMYf" style="align-self:start;bottom:0;grid-column-end:2;grid-column-start:1;grid-row-end:2;grid-row-start:1;height:48px;left:143px;min-height:auto;min-width:auto;position:relative;right:-143px;top:0;width:50px">{{template-2001}}</div>
@@ -639,7 +591,51 @@ CRITICAL: The output must render exactly the same as input.
 HTML TO OPTIMIZE:
 `;
 
+// if (!isMainThread) {
+//   (async () => {
+//     try {
+//       // Clear module cache to prevent any Express contamination
+//       Object.keys(require.cache).forEach(key => {
+//         delete require.cache[key];
+//       });
 
+//       const { html, id, promptType } = workerData;
+      
+//       // Initialize a clean OpenAI instance in worker
+//       const workerOpenAI = new OpenAI({
+//         apiKey: process.env.OPENAI_API_KEY
+//       });
+
+//       const prompt = promptType === 'bgLayers' ? BGLAYERS_OPTIMIZATION_PROMPT : TOPMOST_OPTIMIZATION_PROMPT;
+//       const response = await workerOpenAI.chat.completions.create({
+//         model: "gpt-4o-mini",
+//         messages: [{ role: "user", content: `${prompt}\n${html}` }],
+//         temperature: 0.6,
+//         max_tokens: 12288,
+//       });
+
+//       const optimizedHtml = response.choices[0].message.content
+//         .replace(/^```html\s*/i, '')
+//         .replace(/```\s*$/i, '')
+//         .trim();
+
+//       parentPort.postMessage({ 
+//         success: true, 
+//         optimizedHtml, 
+//         id 
+//       });
+//     } catch (error) {
+//       parentPort.postMessage({ 
+//         success: false, 
+//         error: error.message, 
+//         id: workerData.id 
+//       });
+//     }
+//   })();
+  
+//   // Prevent any further execution in worker thread
+//   return;
+// }
 if (!isMainThread) {
   (async () => {
     try {
@@ -650,14 +646,19 @@ if (!isMainThread) {
 
       const { html, id, promptType } = workerData;
       
-      // Initialize a clean OpenAI instance in worker
+      // Initialize a clean OpenAI instance configured for OpenRouter
       const workerOpenAI = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey: process.env.OPENAI_API_KEY,
+        defaultHeaders: {
+          "HTTP-Referer": "YOUR_SITE_URL", // Replace with your site URL
+          "X-Title": "YOUR_APP_NAME", // Replace with your app name
+        },
       });
 
       const prompt = promptType === 'bgLayers' ? BGLAYERS_OPTIMIZATION_PROMPT : TOPMOST_OPTIMIZATION_PROMPT;
       const response = await workerOpenAI.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "qwen/qwen3-coder", 
         messages: [{ role: "user", content: `${prompt}\n${html}` }],
         temperature: 0.3,
         max_tokens: 12288,
@@ -685,925 +686,6 @@ if (!isMainThread) {
   // Prevent any further execution in worker thread
   return;
 }
-
-// async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
-//   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
-//   console.log('='.repeat(60));
-  
-//   // Step 1: Locate widgets-extracted HTML
-//   const widgetsHtmlPath = path.join(outputDir, `widgets_extracted_${sectionIndex}.html`);
-//   if (!await fs.access(widgetsHtmlPath).then(() => true).catch(() => false)) {
-//     throw new Error(`Widgets-extracted HTML file not found at ${widgetsHtmlPath}`);
-//   }
-
-//   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
-//   console.log(`✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
-
-//   // Step 2: Process bgLayers divs CONCURRENTLY
-//   console.log('\n🎨 Processing bgLayers divs...');
-//   const $ = cheerio.load(widgetsHtml);
-//   const bgLayerDivs = [];
-  
-//   $('div[id^="bgLayers"]').each((index, element) => {
-//     const $element = $(element);
-//     bgLayerDivs.push({
-//       id: $element.attr('id'),
-//       element: element,
-//       html: $.html($element)
-//     });
-//   });
-
-//   console.log(`Found ${bgLayerDivs.length} bgLayers divs`);
-//   const bgTemplates = {};
-
-//   // Process ALL bgLayers CONCURRENTLY with worker threads
-//   const bgLayerResults = await Promise.all(bgLayerDivs.map((divData, i) => {
-//     console.log(`\n🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${divData.id}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: divData.id,
-//           promptType: 'bgLayers'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${divData.id}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: 'Timeout',
-//           html: ''
-//         });
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         resolve({
-//           id: divData.id,
-//           success: message.success,
-//           html: message.optimizedHtml || '',
-//           error: message.error
-//         });
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: error.message,
-//           html: ''
-//         });
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Apply all bgLayer results to the HTML
-//   bgLayerResults.forEach((result, i) => {
-//     const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-//     if (result.success) {
-//       bgTemplates[`{{${bgKey}}}`] = result.html;
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.log(`✅ Optimized ${result.id} (${result.html.length} bytes)`);
-//     } else {
-//       bgTemplates[`{{${bgKey}}}`] = '';
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.error(`❌ Failed ${result.id}: ${result.error}`);
-//     }
-//   });
-
-//   // Save bgLayers results
-//   const bgJsonFile = `bg_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, bgJsonFile), JSON.stringify(bgTemplates, null, 2));
-  
-//   const htmlWithBgPlaceholders = $.html();
-//   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bgPlaceholderHtmlFile), htmlWithBgPlaceholders);
-
-//   // Step 3: Process top-most divs CONCURRENTLY
-//   console.log('\n📊 Processing top-most divs...');
-//   const $saved = cheerio.load(htmlWithBgPlaceholders);
-//   const topMostDivs = [];
-  
-//   $saved('div[id]').each((index, element) => {
-//     const $element = $saved(element);
-//     const id = $element.attr('id');
-    
-//     if (id && !id.startsWith('bgLayers') && $element.parents('div[id]').length === 0) {
-//       topMostDivs.push({
-//         id: id,
-//         element: element,
-//         html: $saved.html($element)
-//       });
-//     }
-//   });
-
-//   console.log(`Found ${topMostDivs.length} top-most divs`);
-//   const componentTemplates = {};
-
-//   // Process ALL top-most divs CONCURRENTLY with worker threads
-//   const topMostResults = await Promise.all(topMostDivs.map(async (divData, i) => {
-//     console.log(`\n🔧 Processing top-most div ${i + 1}/${topMostDivs.length}: ${divData.id}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: divData.id,
-//           promptType: 'topMost'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${divData.id}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: 'Timeout',
-//           html: ''
-//         });
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         resolve({
-//           id: divData.id,
-//           success: message.success,
-//           html: message.optimizedHtml || '',
-//           error: message.error
-//         });
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: error.message,
-//           html: ''
-//         });
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Apply all topMost results to the HTML
-//   topMostResults.forEach((result, i) => {
-//     const templateKey = `template-${String(2000 + i + 1).padStart(4, '0')}`;
-//     if (result.success) {
-//       componentTemplates[`{{${templateKey}}}`] = result.html;
-//       $saved(topMostDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//       console.log(`✅ Optimized ${result.id} (${result.html.length} bytes)`);
-//     } else {
-//       componentTemplates[`{{${templateKey}}}`] = '';
-//       $saved(topMostDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//       console.error(`❌ Failed ${result.id}: ${result.error}`);
-//     }
-//   });
-
-//   // Step 4: Save final output
-//   const finalBareHtml = $saved.html();
-//   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bareMinimumFile), finalBareHtml);
-  
-//   const componentsJsonFile = `bareminimum_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, componentsJsonFile), JSON.stringify(componentTemplates, null, 2));
-
-//   console.log('\n🏁 Bare minimum HTML generation complete!');
-//   console.log('='.repeat(60));
-
-//   return {
-//     bareHtml: finalBareHtml,
-//     bareMinimumFile,
-//     bgJsonFile,
-//     componentsJsonFile,
-//     bgPlaceholderHtmlFile,
-//     bgTemplates,
-//     componentTemplates
-//   };
-// }
-// async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
-//   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
-//   console.log('='.repeat(60));
-  
-//   // Step 1: Locate widgets-extracted HTML
-//   const widgetsHtmlPath = path.join(outputDir, `widgets_extracted_${sectionIndex}.html`);
-//   if (!await fs.access(widgetsHtmlPath).then(() => true).catch(() => false)) {
-//     throw new Error(`Widgets-extracted HTML file not found at ${widgetsHtmlPath}`);
-//   }
-
-//   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
-//   console.log(`✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
-
-//   // Step 2: Process bgLayers divs CONCURRENTLY
-//   console.log('\n🎨 Processing bgLayers divs...');
-//   const $ = cheerio.load(widgetsHtml);
-//   const bgLayerDivs = [];
-  
-//   $('div[id^="bgLayers"]').each((index, element) => {
-//     const $element = $(element);
-//     bgLayerDivs.push({
-//       id: $element.attr('id'),
-//       element: element,
-//       html: $.html($element)
-//     });
-//   });
-
-//   console.log(`Found ${bgLayerDivs.length} bgLayers divs`);
-//   const bgTemplates = {};
-
-//   // Process ALL bgLayers CONCURRENTLY with worker threads
-//   const bgLayerResults = await Promise.all(bgLayerDivs.map((divData, i) => {
-//     console.log(`\n🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${divData.id}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: divData.id,
-//           promptType: 'bgLayers'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${divData.id}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: 'Timeout',
-//           html: ''
-//         });
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         resolve({
-//           id: divData.id,
-//           success: message.success,
-//           html: message.optimizedHtml || '',
-//           error: message.error
-//         });
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: error.message,
-//           html: ''
-//         });
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Apply all bgLayer results to the HTML
-//   bgLayerResults.forEach((result, i) => {
-//     const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-//     if (result.success) {
-//       bgTemplates[`{{${bgKey}}}`] = result.html;
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.log(`✅ Optimized ${result.id} (${result.html.length} bytes)`);
-//     } else {
-//       bgTemplates[`{{${bgKey}}}`] = '';
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.error(`❌ Failed ${result.id}: ${result.error}`);
-//     }
-//   });
-
-//   // Save bgLayers results
-//   const bgJsonFile = `bg_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, bgJsonFile), JSON.stringify(bgTemplates, null, 2));
-  
-//   const htmlWithBgPlaceholders = $.html();
-//   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bgPlaceholderHtmlFile), htmlWithBgPlaceholders);
-
-//   // Helper function to check if element has flex or grid display
-//   function hasFlexOrGridDisplay(element) {
-//     const $el = $(element);
-//     const style = $el.attr('style') || '';
-//     const className = $el.attr('class') || '';
-    
-//     // Check inline styles
-//     if (style.includes('display:flex') || style.includes('display: flex') || 
-//         style.includes('display:grid') || style.includes('display: grid')) {
-//       return true;
-//     }
-    
-//     // Check for common flex/grid class patterns (you may need to adjust based on your CSS framework)
-//     const flexGridClasses = ['flex', 'grid', 'display-flex', 'display-grid', 'd-flex', 'd-grid'];
-//     return flexGridClasses.some(cls => className.includes(cls));
-//   }
-
-//   // Helper function to check if div has nested divs (excluding widgets)
-//   function hasValidNestedDivs(element) {
-//     const $el = $(element);
-//     const nestedDivs = $el.find('div').filter((i, nestedEl) => {
-//       const $nested = $(nestedEl);
-//       const nestedIdentifier = getDivIdentifier(nestedEl);
-      
-//       // Skip if no identifier
-//       if (!nestedIdentifier) return false;
-      
-//       // Exclude bgLayers and widget divs
-//       if (nestedIdentifier.type === 'id' && 
-//           (nestedIdentifier.value.startsWith('bgLayers') || nestedIdentifier.value.includes('widget'))) {
-//         return false;
-//       }
-      
-//       // Exclude widget-related classes
-//       if (nestedIdentifier.type === 'class' && nestedIdentifier.value.includes('widget')) {
-//         return false;
-//       }
-      
-//       // Check if nested div has flex/grid display
-//       return !hasFlexOrGridDisplay(nestedEl);
-//     });
-    
-//     return nestedDivs.length > 0;
-//   }
-
-//   // Helper function to get unique identifier for div
-//   function getDivIdentifier(element) {
-//     const $el = $(element);
-//     const id = $el.attr('id');
-//     const className = $el.attr('class');
-//     const testId = $el.attr('data-test-id');
-//     const meshId = $el.attr('data-mesh-id');
-    
-//     // Prioritize identifiers in order: id, data-test-id, data-mesh-id, class
-//     if (id) return { type: 'id', value: id };
-//     if (testId) return { type: 'data-test-id', value: testId };
-//     if (meshId) return { type: 'data-mesh-id', value: meshId };
-//     if (className) return { type: 'class', value: className };
-    
-//     return null;
-//   }
-
-//   // Step 3: Find flex/grid divs starting from undermost level
-//   console.log('\n📊 Finding flex/grid divs from undermost level...');
-//   const $saved = cheerio.load(htmlWithBgPlaceholders);
-  
-//   // Get all divs with identifying attributes, sorted by depth (deepest first)
-//   const allDivs = [];
-//   $saved('div').each((index, element) => {
-//     const $element = $saved(element);
-//     const identifier = getDivIdentifier($element);
-    
-//     // Skip if no identifier or if it's a bgLayers div
-//     if (!identifier || (identifier.type === 'id' && identifier.value.startsWith('bgLayers'))) {
-//       return;
-//     }
-    
-//     const depth = $element.parents('div').length;
-//     allDivs.push({
-//       identifier: identifier,
-//       element: element,
-//       depth: depth,
-//       html: $saved.html($element)
-//     });
-//   });
-
-//   // Sort by depth (deepest first - undermost)
-//   allDivs.sort((a, b) => b.depth - a.depth);
-  
-//   const flexGridDivs = [];
-//   const processedIdentifiers = new Set();
-
-//   // Process from undermost to top
-//   for (const divData of allDivs) {
-//     const identifierKey = `${divData.identifier.type}:${divData.identifier.value}`;
-    
-//     // Skip if already processed (as part of a parent)
-//     if (processedIdentifiers.has(identifierKey)) {
-//       continue;
-//     }
-
-//     const $element = $saved(divData.element);
-    
-//     // Check if this div has flex/grid display
-//     if (hasFlexOrGridDisplay(divData.element)) {
-//       // Check if it has valid nested divs (non-flex/grid divs that aren't just widgets)
-//       if (hasValidNestedDivs(divData.element)) {
-//         flexGridDivs.push(divData);
-        
-//         // Mark all nested divs as processed to avoid extracting them separately
-//         $element.find('div').each((i, nestedEl) => {
-//           const nestedIdentifier = getDivIdentifier(nestedEl);
-//           if (nestedIdentifier) {
-//             const nestedKey = `${nestedIdentifier.type}:${nestedIdentifier.value}`;
-//             processedIdentifiers.add(nestedKey);
-//           }
-//         });
-        
-//         console.log(`✅ Found flex/grid div: ${divData.identifier.type}="${divData.identifier.value}" at depth ${divData.depth}`);
-//       } else {
-//         console.log(`⏭️ Skipping flex/grid div without valid nested content: ${divData.identifier.type}="${divData.identifier.value}"`);
-//       }
-//     }
-//   }
-
-//   console.log(`Found ${flexGridDivs.length} valid flex/grid divs`);
-//   const componentTemplates = {};
-
-//   // Process ALL flex/grid divs CONCURRENTLY with worker threads
-//   const flexGridResults = await Promise.all(flexGridDivs.map(async (divData, i) => {
-//     const identifierStr = `${divData.identifier.type}="${divData.identifier.value}"`;
-//     console.log(`\n🔧 Processing flex/grid div ${i + 1}/${flexGridDivs.length}: ${identifierStr}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: identifierStr,
-//           promptType: 'flexGrid'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${identifierStr}`);
-//         resolve({
-//           id: identifierStr,
-//           success: false,
-//           error: 'Timeout',
-//           html: ''
-//         });
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         resolve({
-//           id: identifierStr,
-//           success: message.success,
-//           html: message.optimizedHtml || '',
-//           error: message.error
-//         });
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${identifierStr}: ${error.message}`);
-//         resolve({
-//           id: identifierStr,
-//           success: false,
-//           error: error.message,
-//           html: ''
-//         });
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${identifierStr}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Apply all flex/grid results to the HTML
-//   flexGridResults.forEach((result, i) => {
-//     const templateKey = `template-${String(2000 + i + 1).padStart(4, '0')}`;
-//     if (result.success) {
-//       componentTemplates[`{{${templateKey}}}`] = result.html;
-//       $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//       console.log(`✅ Optimized ${result.id} (${result.html.length} bytes)`);
-//     } else {
-//       componentTemplates[`{{${templateKey}}}`] = '';
-//       $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//       console.error(`❌ Failed ${result.id}: ${result.error}`);
-//     }
-//   });
-
-//   // Step 4: Save final output
-//   const finalBareHtml = $saved.html();
-//   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bareMinimumFile), finalBareHtml);
-  
-//   const componentsJsonFile = `bareminimum_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, componentsJsonFile), JSON.stringify(componentTemplates, null, 2));
-
-//   console.log('\n🏁 Bare minimum HTML generation complete!');
-//   console.log('='.repeat(60));
-
-//   return {
-//     bareHtml: finalBareHtml,
-//     bareMinimumFile,
-//     bgJsonFile,
-//     componentsJsonFile,
-//     bgPlaceholderHtmlFile,
-//     bgTemplates,
-//     componentTemplates
-//   };
-// }
-
-// async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
-//   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
-//   console.log('='.repeat(60));
-  
-//   // Step 1: Locate widgets-extracted HTML
-//   const widgetsHtmlPath = path.join(outputDir, `widgets_extracted_${sectionIndex}.html`);
-//   if (!await fs.access(widgetsHtmlPath).then(() => true).catch(() => false)) {
-//     throw new Error(`Widgets-extracted HTML file not found at ${widgetsHtmlPath}`);
-//   }
-
-//   const widgetsHtml = await fs.readFile(widgetsHtmlPath, 'utf8');
-//   console.log(`✅ Found widgets-extracted HTML (${widgetsHtml.length} bytes)`);
-
-//   // Step 2: Process bgLayers divs CONCURRENTLY
-//   console.log('\n🎨 Processing bgLayers divs...');
-//   const $ = cheerio.load(widgetsHtml);
-//   const bgLayerDivs = [];
-  
-//   $('div[id^="bgLayers"]').each((index, element) => {
-//     const $element = $(element);
-//     bgLayerDivs.push({
-//       id: $element.attr('id'),
-//       element: element,
-//       html: $.html($element)
-//     });
-//   });
-
-//   console.log(`Found ${bgLayerDivs.length} bgLayers divs`);
-//   const bgTemplates = {};
-
-//   // Process ALL bgLayers CONCURRENTLY with worker threads
-//   const bgLayerResults = await Promise.all(bgLayerDivs.map((divData, i) => {
-//     console.log(`\n🔧 Processing bgLayers ${i + 1}/${bgLayerDivs.length}: ${divData.id}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: divData.id,
-//           promptType: 'bgLayers'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${divData.id}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: 'Timeout',
-//           html: ''
-//         });
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         resolve({
-//           id: divData.id,
-//           success: message.success,
-//           html: message.optimizedHtml || '',
-//           error: message.error
-//         });
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${divData.id}: ${error.message}`);
-//         resolve({
-//           id: divData.id,
-//           success: false,
-//           error: error.message,
-//           html: ''
-//         });
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${divData.id}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Apply all bgLayer results to the HTML
-//   bgLayerResults.forEach((result, i) => {
-//     const bgKey = `bg-${String(i + 1).padStart(2, '0')}`;
-//     if (result.success) {
-//       bgTemplates[`{{${bgKey}}}`] = result.html;
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.log(`✅ Optimized ${result.id} (${result.html.length} bytes)`);
-//     } else {
-//       bgTemplates[`{{${bgKey}}}`] = '';
-//       $(bgLayerDivs[i].element).replaceWith(`{{${bgKey}}}`);
-//       console.error(`❌ Failed ${result.id}: ${result.error}`);
-//     }
-//   });
-
-//   // Save bgLayers results
-//   const bgJsonFile = `bg_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, bgJsonFile), JSON.stringify(bgTemplates, null, 2));
-  
-//   const htmlWithBgPlaceholders = $.html();
-//   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bgPlaceholderHtmlFile), htmlWithBgPlaceholders);
-
-//   // Helper function to check if element has flex or grid display
-//   function hasFlexOrGridDisplay(element) {
-//     const $el = $(element);
-//     const style = $el.attr('style') || '';
-//     const className = $el.attr('class') || '';
-    
-//     // Check inline styles
-//     if (style.includes('display:flex') || style.includes('display: flex') || 
-//         style.includes('display:grid') || style.includes('display: grid')) {
-//       return true;
-//     }
-    
-//     // Check for common flex/grid class patterns (you may need to adjust based on your CSS framework)
-//     const flexGridClasses = ['flex', 'grid', 'display-flex', 'display-grid', 'd-flex', 'd-grid'];
-//     return flexGridClasses.some(cls => className.includes(cls));
-//   }
-
-//   // Helper function to check if div has nested divs (excluding widgets)
-//   function hasValidNestedDivs(element) {
-//     const $el = $(element);
-//     const nestedDivs = $el.find('div').filter((i, nestedEl) => {
-//       const $nested = $(nestedEl);
-//       const nestedIdentifier = getDivIdentifier(nestedEl);
-      
-//       // Skip if no identifier
-//       if (!nestedIdentifier) return false;
-      
-//       // Exclude bgLayers and widget divs
-//       if (nestedIdentifier.type === 'id' && 
-//           (nestedIdentifier.value.startsWith('bgLayers') || nestedIdentifier.value.includes('widget'))) {
-//         return false;
-//       }
-      
-//       // Exclude widget-related classes
-//       if (nestedIdentifier.type === 'class' && nestedIdentifier.value.includes('widget')) {
-//         return false;
-//       }
-      
-//       // Check if nested div has flex/grid display
-//       return !hasFlexOrGridDisplay(nestedEl);
-//     });
-    
-//     return nestedDivs.length > 0;
-//   }
-
-//   // Helper function to get unique identifier for div
-//   function getDivIdentifier(element) {
-//     const $el = $(element);
-//     const id = $el.attr('id');
-//     const className = $el.attr('class');
-//     const testId = $el.attr('data-test-id');
-//     const meshId = $el.attr('data-mesh-id');
-    
-//     // Prioritize identifiers in order: id, data-test-id, data-mesh-id, class
-//     if (id) return { type: 'id', value: id };
-//     if (testId) return { type: 'data-test-id', value: testId };
-//     if (meshId) return { type: 'data-mesh-id', value: meshId };
-//     if (className) return { type: 'class', value: className };
-    
-//     return null;
-//   }
-
-//   // Helper function to check if element has nested flex/grid divs
-//   function hasNestedFlexGridDivs(element) {
-//     const $el = $saved(element);
-//     const nestedFlexGridDivs = $el.find('div').filter((i, nestedEl) => {
-//       const nestedIdentifier = getDivIdentifier(nestedEl);
-      
-//       // Skip if no identifier
-//       if (!nestedIdentifier) return false;
-      
-//       // Exclude bgLayers and widget divs
-//       if (nestedIdentifier.type === 'id' && 
-//           (nestedIdentifier.value.startsWith('bgLayers') || nestedIdentifier.value.includes('widget'))) {
-//         return false;
-//       }
-      
-//       // Exclude widget-related classes
-//       if (nestedIdentifier.type === 'class' && nestedIdentifier.value.includes('widget')) {
-//         return false;
-//       }
-      
-//       // Check if nested div has flex/grid display
-//       return hasFlexOrGridDisplay(nestedEl);
-//     });
-    
-//     return nestedFlexGridDivs.length > 0;
-//   }
-
-//   // Step 3: Find ONLY innermost flex/grid divs (no nested flex/grid children)
-//   console.log('\n📊 Finding ONLY innermost flex/grid divs...');
-//   const $saved = cheerio.load(htmlWithBgPlaceholders);
-  
-//   // Get all divs with identifying attributes, sorted by depth (deepest first)
-//   const allDivs = [];
-//   $saved('div').each((index, element) => {
-//     const $element = $saved(element);
-//     const identifier = getDivIdentifier($element);
-    
-//     // Skip if no identifier or if it's a bgLayers div
-//     if (!identifier || (identifier.type === 'id' && identifier.value.startsWith('bgLayers'))) {
-//       return;
-//     }
-    
-//     const depth = $element.parents('div').length;
-//     allDivs.push({
-//       identifier: identifier,
-//       element: element,
-//       depth: depth,
-//       html: $saved.html($element)
-//     });
-//   });
-
-//   // Sort by depth (deepest first - innermost)
-//   allDivs.sort((a, b) => b.depth - a.depth);
-  
-//   const flexGridDivs = [];
-//   const processedIdentifiers = new Set();
-
-//   // Process from deepest to shallowest, extract ONLY innermost flex/grid divs
-//   for (const divData of allDivs) {
-//     const identifierKey = `${divData.identifier.type}:${divData.identifier.value}`;
-    
-//     // Skip if already processed (as part of a parent)
-//     if (processedIdentifiers.has(identifierKey)) {
-//       continue;
-//     }
-
-//     const $element = $saved(divData.element);
-    
-//     // Check if this div has flex/grid display
-//     if (hasFlexOrGridDisplay(divData.element)) {
-//       // ONLY extract if it's innermost (no nested flex/grid divs) AND has valid nested content
-//       if (!hasNestedFlexGridDivs(divData.element) && hasValidNestedDivs(divData.element)) {
-//         flexGridDivs.push(divData);
-        
-//         // Mark all nested divs as processed to avoid extracting them separately
-//         $element.find('div').each((i, nestedEl) => {
-//           const nestedIdentifier = getDivIdentifier(nestedEl);
-//           if (nestedIdentifier) {
-//             const nestedKey = `${nestedIdentifier.type}:${nestedIdentifier.value}`;
-//             processedIdentifiers.add(nestedKey);
-//           }
-//         });
-        
-//         console.log(`✅ Found INNERMOST flex/grid div: ${divData.identifier.type}="${divData.identifier.value}" at depth ${divData.depth}`);
-//       } else if (hasNestedFlexGridDivs(divData.element)) {
-//         console.log(`⏭️ Skipping flex/grid div with nested flex/grid children: ${divData.identifier.type}="${divData.identifier.value}"`);
-//       } else {
-//         console.log(`⏭️ Skipping flex/grid div without valid nested content: ${divData.identifier.type}="${divData.identifier.value}"`);
-//       }
-//     }
-//   }
-
-//   console.log(`Found ${flexGridDivs.length} innermost flex/grid divs`);
-//   const componentTemplates = {};
-
-//   // Process ALL flex/grid divs CONCURRENTLY with worker threads
-//   const flexGridResults = await Promise.all(flexGridDivs.map(async (divData, i) => {
-//     const identifierStr = `${divData.identifier.type}="${divData.identifier.value}"`;
-//     console.log(`\n🔧 Processing flex/grid div ${i + 1}/${flexGridDivs.length}: ${identifierStr}`);
-    
-//     return new Promise((resolve) => {
-//       const worker = new Worker(__filename, {
-//         workerData: {
-//           html: divData.html,
-//           id: identifierStr,
-//           promptType: 'flexGrid'
-//         },
-//         resourceLimits: {
-//           maxOldGenerationSizeMb: 256,
-//           maxYoungGenerationSizeMb: 256
-//         }
-//       });
-
-//       const timeout = setTimeout(() => {
-//         worker.terminate();
-//         console.error(`⌛ Timeout processing ${identifierStr}`);
-//         resolve({
-//           id: identifierStr,
-//           success: false,
-//           error: 'Timeout',
-//           html: ''
-//         });
-//       }, 180000); // 3 minute timeout
-
-//       worker.on('message', (message) => {
-//         clearTimeout(timeout);
-//         resolve({
-//           id: identifierStr,
-//           success: message.success,
-//           html: message.optimizedHtml || '',
-//           error: message.error
-//         });
-//       });
-
-//       worker.on('error', (error) => {
-//         clearTimeout(timeout);
-//         console.error(`❌ Worker error for ${identifierStr}: ${error.message}`);
-//         resolve({
-//           id: identifierStr,
-//           success: false,
-//           error: error.message,
-//           html: ''
-//         });
-//       });
-
-//       worker.on('exit', (code) => {
-//         clearTimeout(timeout);
-//         if (code !== 0) {
-//           console.error(`❌ Worker stopped with exit code ${code} for ${identifierStr}`);
-//         }
-//       });
-//     });
-//   }));
-
-//   // Apply all flex/grid results to the HTML
-//   flexGridResults.forEach((result, i) => {
-//     const templateKey = `template-${String(2000 + i + 1).padStart(4, '0')}`;
-//     if (result.success) {
-//       componentTemplates[`{{${templateKey}}}`] = result.html;
-//       $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//       console.log(`✅ Optimized ${result.id} (${result.html.length} bytes)`);
-//     } else {
-//       componentTemplates[`{{${templateKey}}}`] = '';
-//       $saved(flexGridDivs[i].element).replaceWith(`{{${templateKey}}}`);
-//       console.error(`❌ Failed ${result.id}: ${result.error}`);
-//     }
-//   });
-
-//   // Step 4: Save final output
-//   const finalBareHtml = $saved.html();
-//   const bareMinimumFile = `bareminimum_section_${sectionIndex}.html`;
-//   await fs.writeFile(path.join(outputDir, bareMinimumFile), finalBareHtml);
-  
-//   const componentsJsonFile = `bareminimum_${sectionIndex}.json`;
-//   await fs.writeFile(path.join(outputDir, componentsJsonFile), JSON.stringify(componentTemplates, null, 2));
-
-//   console.log('\n🏁 Bare minimum HTML generation complete!');
-//   console.log('='.repeat(60));
-
-//   return {
-//     bareHtml: finalBareHtml,
-//     bareMinimumFile,
-//     bgJsonFile,
-//     componentsJsonFile,
-//     bgPlaceholderHtmlFile,
-//     bgTemplates,
-//     componentTemplates
-//   };
-// }
 
 async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir) {
   console.log(`\n🚀 Starting bare minimum HTML generation for section ${sectionIndex}`);
@@ -1715,221 +797,37 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
   const bgPlaceholderHtmlFile = `bg_placeholder_${sectionIndex}.html`;
   await fs.writeFile(path.join(outputDir, bgPlaceholderHtmlFile), htmlWithBgPlaceholders);
 
-  // Step 3: Process innermost divs CONCURRENTLY
-  console.log('\n📊 Processing innermost divs...');
+  // Step 3: Process top-most divs CONCURRENTLY
+  console.log('\n📊 Processing top-most divs...');
   const $saved = cheerio.load(htmlWithBgPlaceholders);
-  const innermostDivs = [];
+  const topMostDivs = [];
   
-  // Helper function to check if a div contains only widgets
-  function containsOnlyWidgets($element) {
-    const elementHtml = $saved.html($element);
-    
-    // Check for widget patterns - adjust these patterns based on your widget structure
-    const widgetPatterns = [
-      /\{\{widget-\d+\}\}/g,  // Template placeholders for widgets
-      /class="[^"]*widget[^"]*"/g,  // Elements with widget classes
-      /id="[^"]*widget[^"]*"/g,     // Elements with widget IDs
-      /data-widget/g,               // Data attributes for widgets
-      // Add more widget patterns as needed
-    ];
-    
-    // Remove widget content to see what's left
-    let contentWithoutWidgets = elementHtml;
-    widgetPatterns.forEach(pattern => {
-      contentWithoutWidgets = contentWithoutWidgets.replace(pattern, '');
-    });
-    
-    // Remove common empty elements and whitespace
-    contentWithoutWidgets = contentWithoutWidgets
-      .replace(/<div[^>]*>\s*<\/div>/g, '') // Empty divs
-      .replace(/<span[^>]*>\s*<\/span>/g, '') // Empty spans
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
-    
-    // If after removing widgets there's barely any content left, it contains only widgets
-    const remainingContentLength = contentWithoutWidgets.replace(/<[^>]*>/g, '').trim().length;
-    return remainingContentLength < 10; // Threshold for "only widgets"
-  }
-
-  // Helper function to validate opening and closing tags
-  function hasValidTagStructure(html) {
-    try {
-      const tempDoc = cheerio.load(html);
-      // If cheerio can parse it without errors and the structure is maintained, it's valid
-      return tempDoc.html().length > 0;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  // Helper function to get a unique identifier for a div
-  function getDivIdentifier($element) {
-    const id = $element.attr('id');
-    const className = $element.attr('class');
-    const dataTestId = $element.attr('data-test-id') || $element.attr('data-testid');
-    const dataId = $element.attr('data-id');
-    
-    return id || className || dataTestId || dataId || `div-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  const divsToExtract = [];
-  const processedDivs = new Set(); // To avoid processing the same div multiple times
-  
-  // Helper function to check if a div contains only widgets
-  function containsOnlyWidgets($element) {
-    const elementHtml = $saved.html($element);
-    
-    // Check for widget patterns - adjust these patterns based on your widget structure
-    const widgetPatterns = [
-      /\{\{widget-\d+\}\}/g,  // Template placeholders for widgets
-      /class="[^"]*widget[^"]*"/g,  // Elements with widget classes
-      /id="[^"]*widget[^"]*"/g,     // Elements with widget IDs
-      /data-widget/g,               // Data attributes for widgets
-      // Add more widget patterns as needed
-    ];
-    
-    // Remove widget content to see what's left
-    let contentWithoutWidgets = elementHtml;
-    widgetPatterns.forEach(pattern => {
-      contentWithoutWidgets = contentWithoutWidgets.replace(pattern, '');
-    });
-    
-    // Remove common empty elements and whitespace
-    contentWithoutWidgets = contentWithoutWidgets
-      .replace(/<div[^>]*>\s*<\/div>/g, '') // Empty divs
-      .replace(/<span[^>]*>\s*<\/span>/g, '') // Empty spans
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
-    
-    // If after removing widgets there's barely any content left, it contains only widgets
-    const remainingContentLength = contentWithoutWidgets.replace(/<[^>]*>/g, '').trim().length;
-    return remainingContentLength < 10; // Threshold for "only widgets"
-  }
-
-  // Helper function to validate opening and closing tags
-  function hasValidTagStructure(html) {
-    try {
-      const tempDoc = cheerio.load(html);
-      // If cheerio can parse it without errors and the structure is maintained, it's valid
-      return tempDoc.html().length > 0;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  // Helper function to get a unique identifier for a div
-  function getDivIdentifier($element) {
-    const id = $element.attr('id');
-    const className = $element.attr('class');
-    const dataTestId = $element.attr('data-test-id') || $element.attr('data-testid');
-    const dataId = $element.attr('data-id');
-    
-    return id || className || dataTestId || dataId || `div-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  // Step 1: Find all innermost divs first
-  $saved('div').each((index, element) => {
+  $saved('div[id]').each((index, element) => {
     const $element = $saved(element);
-    const identifier = getDivIdentifier($element);
+    const id = $element.attr('id');
     
-    // Skip bgLayers divs as they're already processed
-    if (identifier && !identifier.includes('bgLayers')) {
-      // Check if this div has any child divs (if it does, it's not innermost)
-      const childDivs = $element.find('div');
-      
-      // This is an innermost div if it has no child divs at all
-      if (childDivs.length === 0) {
-        innermostDivs.push({
-          element: $element,
-          identifier: identifier
-        });
-      }
+    if (id && !id.startsWith('bgLayers') && $element.parents('div[id]').length === 0) {
+      topMostDivs.push({
+        id: id,
+        element: element,
+        html: $saved.html($element)
+      });
     }
   });
 
-  console.log(`Found ${innermostDivs.length} innermost divs`);
-
-  // Step 2: For each innermost div, check if it has a parent div and decide what to extract
-  innermostDivs.forEach((innermostData) => {
-    const $innermostDiv = innermostData.element;
-    const innermostIdentifier = innermostData.identifier;
-    
-    // Find the immediate parent div
-    const $parentDiv = $innermostDiv.parent('div');
-    
-    if ($parentDiv.length > 0) {
-      // Has a parent div - analyze one step up
-      const parentIdentifier = getDivIdentifier($parentDiv);
-      const parentHtml = $saved.html($parentDiv);
-      
-      // Skip bgLayers divs
-      if (!parentIdentifier.includes('bgLayers')) {
-        // Check if parent contains only widgets
-        if (!containsOnlyWidgets($parentDiv)) {
-          // Validate tag structure
-          if (hasValidTagStructure(parentHtml)) {
-            // Avoid processing the same parent div multiple times
-            if (!processedDivs.has(parentIdentifier)) {
-              processedDivs.add(parentIdentifier);
-              divsToExtract.push({
-                id: parentIdentifier,
-                element: $parentDiv[0],
-                html: parentHtml,
-                type: 'parent',
-                innermostChild: innermostIdentifier
-              });
-              console.log(`📍 Found valid parent div to extract: ${parentIdentifier} (parent of ${innermostIdentifier})`);
-            } else {
-              console.log(`⏭️  Already processed parent: ${parentIdentifier}`);
-            }
-          } else {
-            console.log(`⚠️  Skipping parent ${parentIdentifier} - invalid tag structure`);
-          }
-        } else {
-          console.log(`⏭️  Skipping parent ${parentIdentifier} - contains only widgets`);
-        }
-      } else {
-        console.log(`⏭️  Skipping parent ${parentIdentifier} - is bgLayers`);
-      }
-    } else {
-      // No parent div - check if the innermost div itself should be extracted
-      const innermostHtml = $saved.html($innermostDiv);
-      
-      if (!containsOnlyWidgets($innermostDiv)) {
-        if (hasValidTagStructure(innermostHtml)) {
-          if (!processedDivs.has(innermostIdentifier)) {
-            processedDivs.add(innermostIdentifier);
-            divsToExtract.push({
-              id: innermostIdentifier,
-              element: $innermostDiv[0],
-              html: innermostHtml,
-              type: 'innermost',
-              innermostChild: null
-            });
-            console.log(`📍 Found valid innermost div to extract (no parent): ${innermostIdentifier}`);
-          }
-        } else {
-          console.log(`⚠️  Skipping innermost ${innermostIdentifier} - invalid tag structure`);
-        }
-      } else {
-        console.log(`⏭️  Skipping innermost ${innermostIdentifier} - contains only widgets`);
-      }
-    }
-  });
-
-  console.log(`Found ${innermostDivs.length} valid innermost divs`);
+  console.log(`Found ${topMostDivs.length} top-most divs`);
   const componentTemplates = {};
 
-  // Process ALL innermost divs CONCURRENTLY with worker threads
-  const innermostResults = await Promise.all(innermostDivs.map(async (divData, i) => {
-    console.log(`\n🔧 Processing innermost div ${i + 1}/${innermostDivs.length}: ${divData.id}`);
+  // Process ALL top-most divs CONCURRENTLY with worker threads
+  const topMostResults = await Promise.all(topMostDivs.map(async (divData, i) => {
+    console.log(`\n🔧 Processing top-most div ${i + 1}/${topMostDivs.length}: ${divData.id}`);
     
     return new Promise((resolve) => {
       const worker = new Worker(__filename, {
         workerData: {
           html: divData.html,
           id: divData.id,
-          promptType: 'innermost'
+          promptType: 'topMost'
         },
         resourceLimits: {
           maxOldGenerationSizeMb: 256,
@@ -1978,16 +876,16 @@ async function generateBareMinimumHtml(sectionIndex, widgetsHtmlInput, outputDir
     });
   }));
 
-  // Apply all innermost results to the HTML
-  innermostResults.forEach((result, i) => {
+  // Apply all topMost results to the HTML
+  topMostResults.forEach((result, i) => {
     const templateKey = `template-${String(2000 + i + 1).padStart(4, '0')}`;
     if (result.success) {
       componentTemplates[`{{${templateKey}}}`] = result.html;
-      $saved(innermostDivs[i].element).replaceWith(`{{${templateKey}}}`);
+      $saved(topMostDivs[i].element).replaceWith(`{{${templateKey}}}`);
       console.log(`✅ Optimized ${result.id} (${result.html.length} bytes)`);
     } else {
       componentTemplates[`{{${templateKey}}}`] = '';
-      $saved(innermostDivs[i].element).replaceWith(`{{${templateKey}}}`);
+      $saved(topMostDivs[i].element).replaceWith(`{{${templateKey}}}`);
       console.error(`❌ Failed ${result.id}: ${result.error}`);
     }
   });
